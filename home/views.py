@@ -5,6 +5,8 @@ from django.shortcuts import render
 def index(request):
     template_data = {}
     template_data['title'] = 'Fit Jacket'
+    is_admin = request.user.groups.filter(name="admin").exists()
+    template_data['is_admin'] = is_admin
     return render(request, 'home/index.html', {'template_data': template_data})
 
 def about(request):

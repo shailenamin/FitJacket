@@ -28,6 +28,9 @@
             <div class="vr bg-white mx-2 d-none d-lg-block"></div>
             {% if user.is_authenticated %}
             <a class="nav-link" href="{% url 'accounts.logout' %}">Logout ({{ user.username }})</a>
+              {% if is_admin %}
+              <a class="nav-link" href="{% url 'administratorPanel.emailUsers' %}">Email Users</a>
+              {% endif %}
             {% else %}
             <a class="nav-link" href="{% url 'accounts.login' %}">Login</a>
             <a class="nav-link" href="{% url 'accounts.signup' %}">Sign Up</a>
@@ -39,13 +42,13 @@
     </nav>
     <!-- Header -->
 
-    <div>
+    <div class="main-content" style="height: 80vh;">
       {% block content %}
       {% endblock content %}
     </div>
 
     <!-- Footer -->
-    <section class="p-3 ms-footer d-none d-md-block">
+    <section class="p-3 ms-footer d-flex d-none d-md-block">
       <div class="container">
         <div class="row mt-3 text-white">
           <div class="col-md-6 col-lg-6 col-xl-6 mx-auto mb-4">
@@ -62,9 +65,9 @@
           <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
             <b>CONTACT</b>
             <hr />
-            <p><i class="fas fa-home me-2"></i> 150-2345 Tokyo-to, Japan</p>
+            <p><i class="fas fa-home me-2"></i> Atlanta, GA</p>
             <p><i class="fas fa-envelope me-2"></i> fitjacket.ian2@gmail.com</p>
-            <p><i class="fas fa-phone me-2"></i> +81 03-3333-3333</p>
+            <p><i class="fas fa-phone me-2"></i> Phone Number</p>
           </div>
         </div>
       </div>
@@ -72,7 +75,7 @@
     <section class="p-3 ms-footer-bottom bg-dark">
       <div class="container d-flex justify-content-between">
         <div class="me-5 text-white">
-          <span>Designed by Leland Green, Shailen Amin, Fardin Ahmed, Vansh Nishchal, & Payton Silverman
+          <span>Designed by Leland Green, Shailen Amin, Fardin Ahmed, Vansh Nishchal, & Payton Silverman</a>
           </span>
         </div>
       </div>

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'administratorPanel',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -58,8 +59,7 @@ ROOT_URLCONF = 'FitJacket.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'FitJacket/templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'FitJacket/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

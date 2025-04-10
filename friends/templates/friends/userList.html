@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Other Users</h2>
+  <ul>
+    {% for user in users %}
+      <li>
+        {{ user.username }}
+        {% if user.id not in sent_requests %}
+          <form method="post" action="{% url 'friends:send_friend_request' user.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Add Friend</button>
+          </form>
+        {% else %}
+          <em>Request Sent</em>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>No other users found.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Incoming Friend Requests</h2>
+  <ul>
+    {% for request in received_requests %}
+      <li>
+        {{ request.from_user.username }}
+        <form method="post" action="{% url 'friends:respond_request' request.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button name="action" value="accept" type="submit">Accept</button>
+          <button name="action" value="reject" type="submit">Reject</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No incoming requests.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
 
+app_name = 'friends'
+
 urlpatterns = [
-    path('friends/', views.add, name='friends.add'),
-    path('add_friend/<int:user_id>/', add_friend, name='add_friend'),
-    path('remove_friend/<int:user_id>/', remove_friend, name='remove_friend'),
+    path('', views.user_list, name='user_list'),
+    path('add/<int:user_id>/', views.send_friend_request, name='send_friend_request'),
+    path('respond/<int:request_id>/', views.respond_request, name='respond_request'),
 ]

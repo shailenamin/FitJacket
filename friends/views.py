@@ -1,42 +1,35 @@
-from django.shortcuts import render, redirect
-from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import FriendRequest
 
-# Create your views here.
+@login_required
+def user_list(request):
+    users = User.objects.exclude(id=request.user.id)
+    sent_requests = FriendRequest.objects.filter(from_user=request.user).values_list('to_user_id', flat=True)
+    received_requests = FriendRequest.objects.filter(to_user=request.user)
 
-def add(request):
-    template_data = {}
-    template_data['title'] = 'Fit Jacket'
-    template_data = {}
-    template_data['title'] = 'Fit Jacket'
-    if request.method == 'GET':
-        return render(request, 'administratorPanel/email.html', {'template_data': template_data})
-    elif request.method == 'POST':
-        subject = request.POST.get('subject')
-        message = request.POST.get('message')
-        receivers = []
-        for user in User.objects.all():
-            receivers.append(user.email)
-        send_mail(
-            subject,
-            message,
-            "fitjacket.ian2@gmail.com",
-            receivers,
-            fail_silently=False,
-        )
-        return redirect('administratorPanel.index')
+    return render(request, 'friends/userList.html', {
+        'users': users,
+        'sent_requests': sent_requests,
+        'received_requests': received_requests
+    })
 
-from django.shortcuts import get_object_or_404, redirect
-from .models import MyUser
+@login_required
+def send_friend_request(request, user_id):
+    to_user = get_object_or_404(User, id=user_id)
+    FriendRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
+    return redirect('friends:user_list')
 
-def add_friend(request, user_id):
-    user = get_object_or_404(MyUser, user_id=request.user.id)
-    friend = get_object_or_404(MyUser, user_id=user_id)
-    user.friends.add(friend)
-    return redirect('profile')
 
-def remove_friend(request, user_id):
-    user = get_object_or_404(MyUser, user_id=request.user.id)
-    friend = get_object_or_404(MyUser, user_id=user_id)
-    user.friends.remove(friend)
-    return redirect('profile')
+@login_required
+def respond_request(request, request_id):
+    friend_request = get_object_or_404(FriendRequest, id=request_id, to_user=request.user)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'accept':
+            friend_request.delete()
+        elif action == 'reject':
+            friend_request.delete()
+    return redirect('friends:user_list')

@@ -1,13 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Other Users</h2>
+  <h2>Users of FitJacket</h2>
   <ul>
     {% for user in users %}
       <li>
         {{ user.username }}
-        {% if user.id not in sent_requests %}
-          <form method="post" action="{% url 'friends:send_friend_request' user.id %}" style="display:inline;">
+        {% if user.id in friends %}
+          <span>- Friends</span>
+          <form method="post" action="{% url 'friends:removeFriend' user.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Remove Friend</button>
+          </form>
+        {% elif user.id not in sent_requests %}
+          <form method="post" action="{% url 'friends:sendRequest' user.id %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit">Add Friend</button>
           </form>
@@ -25,7 +31,7 @@
     {% for request in received_requests %}
       <li>
         {{ request.from_user.username }}
-        <form method="post" action="{% url 'friends:respond_request' request.id %}" style="display:inline;">
+        <form method="post" action="{% url 'friends:respondRequest' request.id %}" style="display:inline;">
           {% csrf_token %}
           <button name="action" value="accept" type="submit">Accept</button>
           <button name="action" value="reject" type="submit">Reject</button>

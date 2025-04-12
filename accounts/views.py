@@ -64,12 +64,3 @@ def resetPassword(request):
         user.set_password(password)
         user.save()
         return redirect('accounts.login')
-
-
-@login_required
-def orders(request):
-    template_data = {}
-    template_data['title'] = 'Orders'
-    template_data['orders'] = request.user.order_set.all()
-    return render(request, 'accounts/orders.html',
-                  {'template_data': template_data})

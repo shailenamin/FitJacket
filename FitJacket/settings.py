@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'administratorPanel',
-    'dashboard',
     'friends',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

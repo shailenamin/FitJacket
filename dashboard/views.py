@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Goal
+from django.contrib import messages
+from google import genai
 
 
 @login_required
@@ -8,8 +10,13 @@ def dashboard(request):
     if request.method == 'POST':
         if 'submit_goal' in request.POST:
             text = request.POST.get('user_input_field')
-            if text:
-                Goal.objects.create(text=text, user=request.user)
+            if text and len(text) <= 100:
+                goal_format = text_formatting(text)
+                goal_text = goal_format[0] + " - " + goal_format[1] + " minutes"
+                Goal.objects.create(text=goal_text, user=request.user)
+                messages.success(request, "Goal added successfully!")
+            else:
+                messages.error(request, "Goal must be 100 characters or less")
 
         elif 'complete_goal' in request.POST:
             goal_id = request.POST.get('goal_id')
@@ -17,6 +24,7 @@ def dashboard(request):
             goal.completed = True
             goal.abandoned = False
             goal.save()
+            messages.success(request, "Goal marked as complete!")
             return redirect('Dashboard')
 
         elif 'abandon_goal' in request.POST:
@@ -25,6 +33,7 @@ def dashboard(request):
             goal.abandoned = True
             goal.completed = False
             goal.save()
+            messages.success(request, "Goal abandoned!")
             return redirect('Dashboard')
 
     current_goals = Goal.objects.filter(user=request.user, completed=False, abandoned=False)
@@ -49,3 +58,26 @@ def goal_history(request):
         'completed_goals': completed_goals,
         'abandoned_goals': abandoned_goals,
     })
+
+
+def text_formatting(text):
+    try:
+        client = genai.Client(api_key="")
+        contents = (
+            "You are to extract the type of exercise and duration from the user's sentence. "
+            "Only output in this exact format: '[ExerciseType]: [DurationInMinutes]'. "
+            "If no valid exercise is found but time is found, output 'Break: [DurationInMinutes]'. "
+            "If no valid exercise and time is found, output 'Break: 0'. "
+            "No context. Only use this input: "
+        )
+        response = client.models.generate_content(
+            model="gemini-2.0-flash", contents=contents + " " + text
+        )
+
+        if ":" in response.text:
+            return response.text.split(": ")
+        else:
+            return ["Break", "0"]
+    except Exception as e:
+        print(f"Error with AI request: {e}")
+        return ["Break", "0"]

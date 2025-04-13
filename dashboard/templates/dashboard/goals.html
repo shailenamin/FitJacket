@@ -14,6 +14,7 @@
       <div class="card shadow h-100">
         <div class="card-body">
           <h5 class="card-title">Set Your Fitness Goals</h5>
+
           <form method="POST">
             {% csrf_token %}
             <div class="mb-3">
@@ -22,6 +23,16 @@
             </div>
             <button type="submit" name="submit_goal" class="btn btn-primary">Submit Goal</button>
           </form>
+          
+          <div class="mb-3">
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-3">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
@@ -33,19 +44,21 @@
           {% if user_inputs %}
             <ol class="list-group list-group-numbered">
               {% for goal in user_inputs %}
-                <li class="list-group-item">
-                  {{ goal.text }}
-                  <form method="POST" style="display:inline;">
+              <li class="list-group-item">
+                {{ goal.text }}
+                <div class="mt-2 d-flex gap-2">
+                  <form method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="goal_id" value="{{ goal.id }}">
                     <button type="submit" name="complete_goal" class="btn btn-success btn-sm">Complete Goal</button>
                   </form>
-                  <form method="POST" style="display:inline;">
+                  <form method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="goal_id" value="{{ goal.id }}">
                     <button type="submit" name="abandon_goal" class="btn btn-warning btn-sm">Abandon Goal</button>
                   </form>
-                </li>
+                </div>
+              </li>
               {% endfor %}
             </ol>
           {% else %}

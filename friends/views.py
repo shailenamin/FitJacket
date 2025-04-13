@@ -24,8 +24,8 @@ def sendRequest(request, user_id):
     to_user = get_object_or_404(User, id=user_id)
     FriendRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
     send_mail(
-        f"You Have A New Friend Request From {request.user.username}!",
-        f"Hi {to_user.username},\n\n{request.user.username} has sent you a friend request on FitJacket. Please login to accept or deline!",
+        f"Friend Request From {request.user.username}!",
+        f"Hi {to_user.username},\n\n{request.user.username} has sent you a friend request on FitJacket. Please login to accept or decline!",
         "fitjacket.ian2@gmail.com",
         [to_user.email],
         fail_silently=False,

@@ -4,3 +4,4 @@
 /FitJacket/__pycache__
 # Venv stuff
 venv/
+.env

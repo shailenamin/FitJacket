@@ -3,6 +3,10 @@ from django.shortcuts import render, redirect
 from .models import Goal
 from django.contrib import messages
 from google import genai
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 @login_required
@@ -62,7 +66,7 @@ def goal_history(request):
 
 def text_formatting(text):
     try:
-        client = genai.Client(api_key="")
+        client = genai.Client(api_key=os.getenv('GENAI_API_KEY'))
         contents = (
             "You are to extract the type of exercise and duration from the user's sentence. "
             "Only output in this exact format: '[ExerciseType]: [DurationInMinutes]'. "

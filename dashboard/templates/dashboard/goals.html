@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+<div class="text-center mb-4">
+  <a href="{% url 'GoalHistory' %}" class="btn btn-info btn-lg px-4 shadow">
+    🗂️ View Goal History
+  </a>
+</div>
 <div class="container py-4">
   <h2 class="mb-4 text-center">FitJacket Dashboard</h2>
 
@@ -24,33 +29,27 @@
     <div class="col-md-6">
       <div class="card shadow h-100">
         <div class="card-body">
-          <h5 class="card-title">Your Submitted Goals</h5>
+          <h5 class="card-title">Your Current Goals</h5>
           {% if user_inputs %}
             <ol class="list-group list-group-numbered">
               {% for goal in user_inputs %}
                 <li class="list-group-item">
                   {{ goal.text }}
-                  {% if not goal.completed and not goal.abandoned %}
-                    <form method="POST" style="display:inline;">
-                      {% csrf_token %}
-                      <input type="hidden" name="goal_id" value="{{ goal.id }}">
-                      <button type="submit" name="complete_goal" class="btn btn-success btn-sm">Complete Goal</button>
-                    </form>
-                    <form method="POST" style="display:inline;">
-                      {% csrf_token %}
-                      <input type="hidden" name="goal_id" value="{{ goal.id }}">
-                      <button type="submit" name="abandon_goal" class="btn btn-warning btn-sm">Abandon Goal</button>
-                    </form>
-                  {% elif goal.completed %}
-                    <span class="badge bg-success">Completed</span>
-                  {% elif goal.abandoned %}
-                    <span class="badge bg-danger">Abandoned</span>
-                  {% endif %}
+                  <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                    <button type="submit" name="complete_goal" class="btn btn-success btn-sm">Complete Goal</button>
+                  </form>
+                  <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                    <button type="submit" name="abandon_goal" class="btn btn-warning btn-sm">Abandon Goal</button>
+                  </form>
                 </li>
               {% endfor %}
             </ol>
           {% else %}
-            <p class="text-muted">No goals submitted yet.</p>
+            <p class="text-muted">No goals remaining.</p>
           {% endif %}
         </div>
       </div>

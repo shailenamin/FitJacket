@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-center">📜 Goal History</h2>
+
+  <a href="{% url 'Dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <h4>✅ Completed Goals</h4>
+      {% if completed_goals %}
+        <ul class="list-group">
+          {% for goal in completed_goals %}
+            <li class="list-group-item">{{ goal.text }} <span class="badge bg-success">Completed</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No completed goals yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <h4>❌ Abandoned Goals</h4>
+      {% if abandoned_goals %}
+        <ul class="list-group">
+          {% for goal in abandoned_goals %}
+            <li class="list-group-item">{{ goal.text }} <span class="badge bg-danger">Abandoned</span></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No abandoned goals yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

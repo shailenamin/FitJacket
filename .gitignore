@@ -5,4 +5,4 @@
 # Venv stuff
 venv/
 .env
-dashboard/api_key.env
+dashboard/.env

@@ -15,6 +15,19 @@ class Goal(models.Model):
     def __str__(self):
         return self.text
 
+    @classmethod
+    def expired_goals(cls, user):
+        now = timezone.now()
+        expired = cls.objects.filter(
+            user=user,
+            completed=False,
+            abandoned=False,
+            end_date__lt=now
+        )
+        amount_expired = expired.count()
+        expired.update(abandoned=True)
+        return amount_expired
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

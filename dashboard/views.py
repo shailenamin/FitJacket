@@ -13,6 +13,11 @@ load_dotenv()
 @login_required
 def dashboard(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
+    if (Goal.expired_goals(request.user) > 0):
+        profile.current_streak = 0
+        profile.save()
+        return redirect('Dashboard')
+
     if request.method == 'POST':
         if 'submit_goal' in request.POST:
             text = request.POST.get('user_input_field')

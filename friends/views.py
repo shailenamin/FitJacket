@@ -5,11 +5,13 @@ from .models import FriendRequest, Friendship, WorkoutGroup, GroupInvite, GroupM
 from django.db.models import Q
 from django.core.mail import send_mail
 from .forms import WorkoutGroupForm
+from dashboard.models import Goal
 
 @login_required
 def users(request):
     users = User.objects.exclude(id=request.user.id)
     groups = WorkoutGroup.objects.filter(groupmember__user=request.user)
+    group_invites = GroupInvite.objects.filter(to_user=request.user)
     sent_requests = FriendRequest.objects.filter(from_user=request.user).values_list('to_user_id', flat=True)
     received_requests = FriendRequest.objects.filter(to_user=request.user)
     friendships = Friendship.objects.filter(Q(user1=request.user) | Q(user2=request.user))
@@ -19,7 +21,14 @@ def users(request):
             friend_ids.add(friendship.user2.id)
         else:
             friend_ids.add(friendship.user1.id)
-    return render(request, 'friends/userList.html', {'users': users,'sent_requests': sent_requests,'received_requests': received_requests,'friends': friend_ids, 'groups': groups,})
+    return render(request, 'friends/userList.html', {
+        'users': users,
+        'sent_requests': sent_requests,
+        'received_requests': received_requests,
+        'friends': friend_ids,
+        'groups': groups,
+        'group_invites': group_invites
+    })
 
 @login_required
 def sendRequest(request, user_id):
@@ -27,7 +36,7 @@ def sendRequest(request, user_id):
     FriendRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
     send_mail(
         f"Friend Request From {request.user.username}!",
-        f"Hi {to_user.username},\n\n{request.user.username} has sent you a friend request on FitJacket. Please login to accept or decline!",
+        f"Hi {to_user.username},\n\n{request.user.username} has sent you a friend request on FitJacket.\n\nPlease login to accept or decline!",
         "fitjacket.ian2@gmail.com",
         [to_user.email],
         fail_silently=False,
@@ -79,7 +88,16 @@ def invite_to_group(request, group_id=None, user_id=None):
     to_user = get_object_or_404(User, id=user_id)
     if not GroupMember.objects.filter(group=group, user=request.user).exists():
         return redirect('friends:userList')
+    if GroupMember.objects.filter(group=group, user=to_user).exists():
+        return redirect('friends:userList')
     GroupInvite.objects.get_or_create(group=group, from_user=request.user, to_user=to_user)
+    send_mail(
+        f"Friend Request From {request.user.username}!",
+        f"Hi {to_user.username},\n\n{request.user.username} has invited you to become a member of the following goup: {group.name}\n\nPlease login to accept or decline!",
+        "fitjacket.ian2@gmail.com",
+        [to_user.email],
+        fail_silently=False,
+    )
     return redirect('friends:userList')
 
 def respond_group_invite(request, invite_id):
@@ -100,3 +118,16 @@ def leave_group(request, group_id):
     if membership:
         membership.delete()
     return redirect('friends:userList')
+
+@login_required
+def group_detail(request, group_id):
+    group = get_object_or_404(WorkoutGroup, id=group_id)
+    members = GroupMember.objects.filter(group=group).select_related('user')
+    goals_by_user = []
+    for member in members:
+        user_goals = Goal.objects.filter(user=member.user)
+        goals_by_user.append((member.user, user_goals))
+    return render(request, 'friends/group.html', {
+        'group': group,
+        'goals_by_user': goals_by_user,
+    })

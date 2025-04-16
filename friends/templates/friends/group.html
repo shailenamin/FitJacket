@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ group.name }} Members & Goals</h2>
+  <ul>
+    {% for user, goals in goals_by_user %}
+      <li>
+        <strong>{{ user.username }}</strong>
+        <ul>
+          {% for goal in goals %}
+            <li>{{ goal.text }}</li>
+          {% empty %}
+            <li>No goals</li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

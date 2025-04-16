@@ -59,15 +59,24 @@
     {% for group in groups %}
   <div>
     <strong>{{ group.name }}</strong>
-    {% if group.created_by == request.user %}
       <form method="post" action="{% url 'friends:leaveGroup' group.id %}">
         {% csrf_token %}
         <button type="submit">Leave Group</button>
       </form>
-    {% else %}
-      <em>You are the creator of this group.</em>
-    {% endif %}
   </div>
+  <h2>Group Invites</h2>
+<ul>
+  {% for invite in group_invites %}
+    <li>
+      You were invited to <strong>{{ invite.group.name }}</strong> by {{ invite.from_user.username }}
+      <form method="post" action="{% url 'friends:respondGroupInvite' invite.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button name="action" value="accept" type="submit">Accept</button>
+      </form>
+    </li>
+  {% empty %}
+    <li>No group invites.</li>
+  {% endfor %}
+</ul>
 {% endfor %}
-
 {% endblock %}

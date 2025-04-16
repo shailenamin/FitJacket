@@ -38,6 +38,11 @@
             <a class="nav-link" href="{% url 'accounts.signup' %}">Sign Up</a>
             <a class="nav-link" href="{% url 'accounts.resetPassword' %}">Reset Password</a>
             {% endif %}
+            {% if user_groups %}
+                {% for group in user_groups %}
+                    <a class="nav-link" href="{% url 'friends:groupDetail' group.id %}">{{ group.name }}</a>
+                {% endfor %}
+            {% endif %}
           </div>
         </div>
       </div>

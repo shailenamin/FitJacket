@@ -11,4 +11,5 @@ urlpatterns = [
     path('groups/<int:group_id>/invite/<int:user_id>/', views.invite_to_group, name='inviteToGroup'),
     path('groups/respond_invite/<int:invite_id>/', views.respond_group_invite, name='respondGroupInvite'),
     path('groups/<int:group_id>/leave', views.leave_group, name='leaveGroup'),
+    path('groups/<int:group_id>/', views.group_detail, name='groupDetail'),
 ]

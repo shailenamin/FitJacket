@@ -7,3 +7,4 @@ def admin_group(request):
     else:
         is_admin = False
     return {'is_admin': is_admin}
+

@@ -24,4 +24,4 @@ def emailUsers(request):
             receivers,
             fail_silently=False,
         )
-        return redirect('administratorPanel.index')
+        return redirect('administratorPanel.emailUsers')

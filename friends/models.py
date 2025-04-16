@@ -22,3 +22,20 @@ class Friendship(models.Model):
 
     def __str__(self):
         return f"{self.user1} ↔ {self.user2}"
+
+class WorkoutGroup(models.Model):
+    name = models.CharField(max_length=255)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class GroupMember(models.Model):
+    group = models.ForeignKey(WorkoutGroup, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+class GroupInvite(models.Model):
+    group = models.ForeignKey(WorkoutGroup, on_delete=models.CASCADE)
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_group_invites')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_group_invites')
+    sent_at = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)

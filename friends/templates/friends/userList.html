@@ -12,6 +12,15 @@
             {% csrf_token %}
             <button type="submit">Remove Friend</button>
           </form>
+          <form method="post" action="{% url 'friends:inviteToGroup' 0 user.id %}" style="display:inline;">
+            {% csrf_token %}
+            <select name="group_id">
+                {% for group in groups %}
+                <option value="{{ group.id }}">{{ group.name }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit">Invite to Group</button>
+          </form>
         {% elif user.id not in sent_requests %}
           <form method="post" action="{% url 'friends:sendRequest' user.id %}" style="display:inline;">
             {% csrf_token %}
@@ -41,4 +50,24 @@
       <li>No incoming requests.</li>
     {% endfor %}
   </ul>
+      <h2>Create a Workout Group</h2>
+    <form method="post" action="{% url 'friends:createGroup' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Create Group</button>
+    </form>
+    {% for group in groups %}
+  <div>
+    <strong>{{ group.name }}</strong>
+    {% if group.created_by == request.user %}
+      <form method="post" action="{% url 'friends:leaveGroup' group.id %}">
+        {% csrf_token %}
+        <button type="submit">Leave Group</button>
+      </form>
+    {% else %}
+      <em>You are the creator of this group.</em>
+    {% endif %}
+  </div>
+{% endfor %}
+
 {% endblock %}

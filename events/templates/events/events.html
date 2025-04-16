@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>FitJacket Events</h2>
+  <p>Please see below for all of our FitJacket events. We hope to see you participate in one!</p>
+  <ul>
+    {% for user, goals in goals_by_user %}
+      <li>
+        <strong>{{ user.username }}</strong>
+        <ul>
+          {% for goal in goals %}
+            <li>{{ goal.text }}</li>
+          {% empty %}
+            <li>No goals</li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

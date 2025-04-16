@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Goal
 from django.contrib import messages
+from django.utils import timezone
 from google import genai
 from dotenv import load_dotenv
 import os
@@ -22,6 +23,9 @@ def dashboard(request):
             elif text and len(text) <= 100:
                 goal_format = text_formatting(text)
                 goal_text = goal_format[0] + " - " + goal_format[1] + " minutes"
+                start_date = timezone.make_aware(timezone.datetime.strptime(start_date, "%Y-%m-%d"))
+                end_date = timezone.make_aware(timezone.datetime.strptime(end_date, "%Y-%m-%d"))
+
                 Goal.objects.create(
                     text=goal_text,
                     user=request.user,

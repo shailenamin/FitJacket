@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Create a New Workout Group</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Group</button>
+  </form>
+  <br>
+  <a href="{% url 'friends:userList' %}">Back to Groups</a>
+{% endblock %}

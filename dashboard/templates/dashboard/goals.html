@@ -6,6 +6,7 @@
     🗂️ View Goal History
   </a>
 </div>
+<footer class="py-3 w-100">
 <div class="container py-4">
   <h2 class="mb-4 text-center">FitJacket Dashboard</h2>
 
@@ -83,26 +84,36 @@
       </div>
     </div>
 
-  <!-- Dashboard Summary Stats -->
-  <div class="row mt-5 g-4 text-center">
-    <div class="col-md-4">
-      <div class="card bg-light shadow h-100 p-3">
-        <h6 class="mb-2">🥇 Goals Accomplished</h6>
-        <p class="fw-bold display-6">{{ completed_goals_count }}</p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card bg-light shadow h-100 p-3">
-        <h6 class="mb-2">🔜 Goals Remaining</h6>
-        <p class="fw-bold display-6">{{ remaining_goals_count }}</p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card bg-light shadow h-100 p-3">
-        <h6 class="mb-2">🚫 Goals Abandoned</h6>
-        <p class="fw-bold display-6">{{ abandoned_goals_count }}</p>
-      </div>
+<!-- Dashboard Summary Stats -->
+<div class="row mt-4">
+  <div class="col-md-6 offset-md-3">
+    <div class="card bg-gradient-to-r from-red-400 to-yellow-500 text-white shadow-lg h-100 p-4">
+      <h6 class="mb-3 text-black">🔥 Current Streak</h6>
+      <p class="fw-bold display-4" style="font-size: 3rem; text-shadow: 2px 2px 10px rgba(255, 69, 0, 0.6);" id="streak-number">{{ streak }}</p>
     </div>
   </div>
 </div>
+
+<div class="row mt-5 g-4 text-center mb-5">
+  <div class="col-md-4">
+    <div class="card bg-light shadow h-100 p-3">
+      <h6 class="mb-2">🥇 Goals Accomplished</h6>
+      <p class="fw-bold display-6">{{ completed_goals_count }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-light shadow h-100 p-3">
+      <h6 class="mb-2">🔜 Goals Remaining</h6>
+      <p class="fw-bold display-6">{{ remaining_goals_count }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-light shadow h-100 p-3">
+      <h6 class="mb-2">🚫 Goals Abandoned</h6>
+      <p class="fw-bold display-6">{{ abandoned_goals_count }}</p>
+    </div>
+  </div>
+</div>
+</footer>
+
 {% endblock content %}

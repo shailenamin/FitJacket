@@ -14,3 +14,12 @@ class Goal(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    current_streak = models.PositiveIntegerField(default=0)
+    max_streak = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"

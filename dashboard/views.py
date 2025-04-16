@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import Goal
+from .models import Goal, Profile
 from django.contrib import messages
 from django.utils import timezone
 from google import genai
@@ -12,6 +12,7 @@ load_dotenv()
 
 @login_required
 def dashboard(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         if 'submit_goal' in request.POST:
             text = request.POST.get('user_input_field')
@@ -42,6 +43,8 @@ def dashboard(request):
             goal.abandoned = False
             goal.save()
             messages.success(request, "Goal marked as complete!")
+            profile.current_streak += 1
+            profile.save()
             return redirect('Dashboard')
 
         elif 'abandon_goal' in request.POST:
@@ -51,18 +54,20 @@ def dashboard(request):
             goal.completed = False
             goal.save()
             messages.success(request, "Goal abandoned!")
+            profile.current_streak = 0
+            profile.save()
             return redirect('Dashboard')
 
     current_goals = Goal.objects.filter(user=request.user, completed=False, abandoned=False)
     completed_goals_count = Goal.objects.filter(user=request.user, completed=True).count()
     abandoned_goals_count = Goal.objects.filter(user=request.user, abandoned=True).count()
     remaining_goals_count = Goal.objects.filter(user=request.user, completed=False, abandoned=False).count()
-
     return render(request, 'dashboard/goals.html', {
         'user_inputs': current_goals,
         'completed_goals_count': completed_goals_count,
         'abandoned_goals_count': abandoned_goals_count,
         'remaining_goals_count': remaining_goals_count,
+        'streak': profile.current_streak
     })
 
 

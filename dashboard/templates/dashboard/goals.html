@@ -21,6 +21,15 @@
               <label for="inputText" class="form-label">Enter a new fitness goal:</label>
               <input type="text" class="form-control" id="inputText" name="user_input_field" required>
             </div>
+              <div class="mb-3">
+                <label for="startDate" class="form-label">Start Date:</label>
+                <input type="date" class="form-control" id="startDate" name="start_date" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="endDate" class="form-label">End Date:</label>
+                <input type="date" class="form-control" id="endDate" name="end_date" required>
+              </div>
             <button type="submit" name="submit_goal" class="btn btn-primary">Submit Goal</button>
           </form>
           
@@ -46,6 +55,12 @@
               {% for goal in user_inputs %}
               <li class="list-group-item">
                 {{ goal.text }}
+                <div class="mt-2 text-muted">
+                  <small>
+                    <strong>Start Date:</strong> {{ goal.start_date|date:"m/d/Y" }} <br>
+                    <strong>End Date:</strong> {{ goal.end_date|date:"m/d/Y" }}
+                  </small>
+                </div>
                 <div class="mt-2 d-flex gap-2">
                   <form method="POST">
                     {% csrf_token %}

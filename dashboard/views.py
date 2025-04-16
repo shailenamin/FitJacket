@@ -14,11 +14,20 @@ def dashboard(request):
     if request.method == 'POST':
         if 'submit_goal' in request.POST:
             text = request.POST.get('user_input_field')
-            if text and len(text) <= 100:
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+
+            if end_date < start_date:
+                messages.error(request, "End date cannot be before start date.")
+            elif text and len(text) <= 100:
                 goal_format = text_formatting(text)
                 goal_text = goal_format[0] + " - " + goal_format[1] + " minutes"
-                Goal.objects.create(text=goal_text, user=request.user)
-                messages.success(request, "Goal added successfully!")
+                Goal.objects.create(
+                    text=goal_text,
+                    user=request.user,
+                    start_date=start_date,
+                    end_date=end_date
+                )
             else:
                 messages.error(request, "Goal must be 100 characters or less")
 

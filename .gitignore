@@ -6,3 +6,4 @@
 venv/
 .env
 dashboard/.env
+/FitJacket/__pycache__

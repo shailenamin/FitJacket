@@ -4,17 +4,14 @@
   <h2>FitJacket Events</h2>
   <p>Please see below for all of our FitJacket events. We hope to see you participate in one!</p>
   <ul>
-    {% for user, goals in goals_by_user %}
-      <li>
-        <strong>{{ user.username }}</strong>
-        <ul>
-          {% for goal in goals %}
-            <li>{{ goal.text }}</li>
-          {% empty %}
-            <li>No goals</li>
-          {% endfor %}
-        </ul>
-      </li>
-    {% endfor %}
+  {% for event in events %}
+    <li>{{ event.name }}</li>
+  {% endfor %}
   </ul>
+  <h2>Create a Workout Event</h2>
+    <form method="post" action="{% url 'events.create' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Create Event</button>
+    </form>
 {% endblock %}

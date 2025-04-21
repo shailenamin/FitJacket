@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.utils.timezone import localtime
 
 
-
 class Goal(models.Model):
     text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,6 +12,7 @@ class Goal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     completed = models.BooleanField(default=False)
     abandoned = models.BooleanField(default=False)
+    favorite = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text

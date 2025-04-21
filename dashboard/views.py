@@ -62,6 +62,13 @@ def dashboard(request):
             profile.current_streak = 0
             profile.save()
             return redirect('Dashboard')
+        elif 'favorite_goal' in request.POST:
+            goal_id = request.POST.get('goal_id')
+            goal = Goal.objects.get(id=goal_id)
+            goal.favorite = True
+            goal.save()
+            messages.success(request, "Goal favorited!")
+            return redirect('favorite/')
 
     current_goals = Goal.objects.filter(user=request.user, completed=False, abandoned=False)
     completed_goals_count = Goal.objects.filter(user=request.user, completed=True).count()
@@ -84,6 +91,39 @@ def goal_history(request):
     return render(request, 'dashboard/goal-history.html', {
         'completed_goals': completed_goals,
         'abandoned_goals': abandoned_goals,
+    })
+
+
+@login_required
+def mark_favorite(request):
+    if request.method == 'POST':
+
+        if 'unfavorite_goal' in request.POST:
+            goal_id = request.POST.get('goal_id')
+            goal = Goal.objects.get(id=goal_id)
+            goal.favorite = False
+            goal.save()
+            messages.success(request, "Goal Unfavorited!")
+            return redirect('FavoriteHistory') 
+
+        elif 'add_goal' in request.POST:
+            goal_id = request.POST.get('goal_id')
+            goal = Goal.objects.get(id=goal_id)
+            time_diff = goal.end_date - goal.start_date
+
+            Goal.objects.create(
+                text=goal.text,
+                user=request.user,
+                start_date=timezone.now(),
+                end_date=timezone.now() + time_diff
+            )
+
+            messages.success(request, "Goal added to Dashbord!")
+            return redirect('Dashboard')
+
+    favorite_goals = Goal.objects.filter(user=request.user, favorite=True)
+    return render(request, 'dashboard/favorite.html', {
+        'favorite_goals': favorite_goals
     })
 
 

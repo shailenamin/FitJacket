@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.timezone import localtime
+
 
 
 class Goal(models.Model):
@@ -17,7 +19,7 @@ class Goal(models.Model):
 
     @classmethod
     def expired_goals(cls, user):
-        now = timezone.now()
+        now = localtime(timezone.now()).date()
         expired = cls.objects.filter(
             user=user,
             completed=False,

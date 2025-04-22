@@ -12,10 +12,12 @@
       {% endif %}
   {% endfor %}
   </ul>
+  {% if user.is_authenticated %}
   <h2>Create a Workout Event</h2>
     <form method="post" action="{% url 'events.create' %}">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="submit">Create Event</button>
     </form>
+  {% endif %}
 {% endblock %}

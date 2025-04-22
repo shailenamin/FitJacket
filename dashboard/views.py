@@ -29,8 +29,8 @@ def dashboard(request):
             if end_date <= start_date:
                 messages.error(request, "End date cannot be before or on the start date.")
             elif text and len(text) <= 100:
-                goal_format = text_formatting(text)
-                goal_text = goal_format[0] + " - " + goal_format[1] + " minutes"
+                exercise_type, duration_minutes, calories_per_minute = text_formatting(text)
+                goal_text = f"{exercise_type} - {duration_minutes} minutes"
                 start_date = timezone.make_aware(timezone.datetime.strptime(start_date, "%Y-%m-%d"))
                 end_date = timezone.make_aware(timezone.datetime.strptime(end_date, "%Y-%m-%d"))
 
@@ -38,7 +38,9 @@ def dashboard(request):
                     text=goal_text,
                     user=request.user,
                     start_date=start_date,
-                    end_date=end_date
+                    end_date=end_date,
+                    total_duration_seconds=duration_minutes * 60,
+                    calories_burnt_per_second=calories_per_minute / 60
                 )
             else:
                 messages.error(request, "Goal must be 100 characters or less")
@@ -133,30 +135,38 @@ def text_formatting(text):
     try:
         client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-        contents = (
-            "You are to extract the type of exercise and duration from the user's sentence. "
-            "Only output in this exact format: '[ExerciseType]: [DurationInMinutes]'. "
-            "If no valid exercise is found but time is found, output 'Break: [DurationInMinutes]'. "
-            "If no valid exercise and time is found, output 'Break: 0'. "
+        # Prompt the AI to extract exercise, duration, AND calories per minute
+        system_prompt = (
+            "You will extract exercise type, duration in minutes, and estimate calories burned per minute. "
+            "Return in JSON format like this: "
+            "{\"exercise\": \"Jump Rope\", \"duration_minutes\": 20, \"calories_per_minute\": 12}"
         )
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": contents},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text}
             ],
-            max_tokens=50,
+            max_tokens=100,
         )
 
         response_text = response.choices[0].message.content.strip()
 
-        if ":" in response_text:
-            return response_text.split(": ")
-        else:
-            return ["Break", "0"]
+        # parse response_text into a Python dictionary
+        import json
+        parsed = json.loads(response_text)
+
+        exercise_type = parsed.get("exercise", "Unknown Exercise")
+        duration_minutes = parsed.get("duration_minutes", 0)
+        calories_per_minute = parsed.get("calories_per_minute", 0)
+
+        return exercise_type, duration_minutes, calories_per_minute
+
     except Exception as e:
         print(f"Error with AI request: {e}")
-        return ["Break", "0"]
+        return "Break", 0, 0
+
 
 
 @login_required
@@ -182,4 +192,33 @@ def progress_view(request):
         'total_completion_percentage': total_completion_percentage,
         'total_remaining_percentage': total_remaining_percentage,
     })
+
+@login_required
+def start_goal(request, goal_id):
+    goal = Goal.objects.get(id=goal_id)
+
+    return render(request, 'dashboard/start_goal.html', {
+        'goal': goal,
+    })
+
+@login_required
+def complete_goal(request):
+    if request.method == 'POST':
+        goal_id = request.POST.get('goal_id')
+        calories_burned = request.POST.get('calories_burned')
+
+        goal = Goal.objects.get(id=goal_id)
+
+        Progress.objects.create(
+            user=request.user,
+            goal_name=goal.text,
+            progress_value=round(float(calories_burned)),
+            target_value=goal.total_duration_seconds,
+        )
+
+        goal.completed = True
+        goal.save()
+
+        return redirect('progress')
+
 

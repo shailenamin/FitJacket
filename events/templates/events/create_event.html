@@ -1,12 +1,57 @@
 {% extends 'base.html' %}
-
 {% block content %}
-  <h2>Create a New Workout Event</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create Event</button>
-  </form>
-  <br>
-  <a href="{% url 'events.about' %}">Back to Events</a>
+{% load static %}
+
+<!-- Create Event Hero with Soft Zoom Background -->
+<section class="py-5 text-white text-center position-relative" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{% static 'img/hero_create.jpg' %}') no-repeat center center/cover; background-size: 105%; animation: slowZoom 20s infinite alternate ease-in-out;">
+  <div class="container">
+    <h1 class="fw-bold display-4 animate__animated animate__fadeInDown">Create a New Event</h1>
+    <p class="lead animate__animated animate__fadeInUp animate__delay-1s">Organize your next workout, yoga session, or cardio blast!</p>
+  </div>
+</section>
+
+<!-- Create Event Form -->
+<section class="py-5" style="background-color: #f8f9fa;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow p-5 animate__animated animate__fadeInUp animate__delay-2s">
+          <h3 class="fw-bold mb-4 text-center text-success">Event Details</h3>
+          <form method="post" action="">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success btn-lg shadow">Create Event ✅</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'events.about' %}" class="text-decoration-none text-muted small">
+              ← Back to Events
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Custom Animations + Hover Effects -->
+<style>
+  @keyframes slowZoom {
+    from { background-size: 105%; }
+    to { background-size: 110%; }
+  }
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+</style>
+
 {% endblock %}

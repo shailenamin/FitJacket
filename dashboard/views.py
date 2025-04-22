@@ -162,5 +162,24 @@ def text_formatting(text):
 @login_required
 def progress_view(request):
     user_progress = Progress.objects.filter(user=request.user)
-    return render(request, 'dashboard/progress.html', {'progress_data': user_progress})
+    completed = Goal.objects.filter(user=request.user, completed=True).count()
+    remaining = Goal.objects.filter(user=request.user, completed=False, abandoned=False).count()
+    abandoned = Goal.objects.filter(user=request.user, abandoned=True).count()
+
+    total_goals = completed + remaining + abandoned
+    if total_goals > 0:
+        total_completion_percentage = round((completed / total_goals) * 100)
+        total_remaining_percentage = 100 - total_completion_percentage
+    else:
+        total_completion_percentage = 0
+        total_remaining_percentage = 100
+
+    return render(request, 'dashboard/progress.html', {
+        'progress_data': user_progress,
+        'completed_goals_count': completed,
+        'remaining_goals_count': remaining,
+        'abandoned_goals_count': abandoned,
+        'total_completion_percentage': total_completion_percentage,
+        'total_remaining_percentage': total_remaining_percentage,
+    })
 

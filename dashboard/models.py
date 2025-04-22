@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.timezone import localtime
+
 
 
 class Goal(models.Model):
@@ -11,18 +13,22 @@ class Goal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     completed = models.BooleanField(default=False)
     abandoned = models.BooleanField(default=False)
+    favorite = models.BooleanField(default=False)
+    total_duration_seconds = models.IntegerField(default=0)
+    calories_burnt_per_second = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.text
 
     @classmethod
     def expired_goals(cls, user):
-        now = timezone.now()
+        today = timezone.now().date()
+
         expired = cls.objects.filter(
             user=user,
             completed=False,
             abandoned=False,
-            end_date__lt=now
+            end_date__date__lt=today
         )
         amount_expired = expired.count()
         expired.update(abandoned=True)
@@ -36,3 +42,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+
+class Progress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    goal_name = models.CharField(max_length=100)
+    progress_value = models.IntegerField()
+    target_value = models.IntegerField()
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.goal_name} ({self.progress_value}/{self.target_value})"
+

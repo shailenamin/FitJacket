@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<div class="text-center mb-4">
+<div class="d-flex justify-content-between mb-4">
   <a href="{% url 'GoalHistory' %}" class="btn btn-info btn-lg px-4 shadow">
     🗂️ View Goal History
+  </a>
+  <a href="{% url 'FavoriteHistory' %}" class="btn btn-info btn-lg px-4 shadow">
+    ⭐ View Favorite Goals
+  </a>
+  <a href="{% url 'progress' %}" class="btn btn-success btn-lg px-4 shadow">
+    📈 View My Progress
   </a>
 </div>
 <footer class="py-3 w-100">
@@ -73,6 +79,14 @@
                     <input type="hidden" name="goal_id" value="{{ goal.id }}">
                     <button type="submit" name="abandon_goal" class="btn btn-warning btn-sm">Abandon Goal</button>
                   </form>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                    <button type="submit" name="favorite_goal" class="btn btn-primary btn-sm">Favorite Goal</button>
+                  </form>
+                    <form method="GET" action="{% url 'start_goal' goal.id %}">
+                    <button type="submit" class="btn btn-secondary btn-sm">Start Goal</button>
+                    </form>
                 </div>
               </li>
               {% endfor %}

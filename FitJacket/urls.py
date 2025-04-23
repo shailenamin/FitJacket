@@ -25,5 +25,5 @@ urlpatterns = [
     path('friends/', include('friends.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('events/', include('events.urls')),
-
+    path('coach/', include('ai_coach.urls')),
 ]

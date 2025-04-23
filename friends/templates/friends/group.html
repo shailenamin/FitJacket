@@ -1,19 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>{{ group.name }} Members & Goals</h2>
-  <ul>
-    {% for user, goals in goals_by_user %}
-      <li>
-        <strong>{{ user.username }}</strong>
-        <ul>
-          {% for goal in goals %}
-            <li>{{ goal.text }}</li>
-          {% empty %}
-            <li>No goals</li>
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">{{ group.name }} Members & Goals</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <ul class="list-group shadow-sm">
+          {% for user, goals in goals_by_user %}
+            <li class="list-group-item">
+              <strong>{{ user.username }}</strong>
+              <ul class="mt-2">
+                {% for goal in goals %}
+                  <li>{{ goal.text }}</li>
+                {% empty %}
+                  <li class="text-muted">No goals</li>
+                {% endfor %}
+              </ul>
+            </li>
           {% endfor %}
         </ul>
-      </li>
-    {% endfor %}
-  </ul>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

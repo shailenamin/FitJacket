@@ -1,82 +1,100 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Users of FitJacket</h2>
-  <ul>
-    {% for user in users %}
-      <li>
-        {{ user.username }}
-        {% if user.id in friends %}
-          <span>- Friends</span>
-          <form method="post" action="{% url 'friends:removeFriend' user.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Remove Friend</button>
-          </form>
-          <form method="post" action="{% url 'friends:inviteToGroup' 0 user.id %}" style="display:inline;">
-            {% csrf_token %}
-            <select name="group_id">
-                {% for group in groups %}
-                <option value="{{ group.id }}">{{ group.name }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit">Invite to Group</button>
-          </form>
-        {% elif user.id not in sent_requests %}
-          <form method="post" action="{% url 'friends:sendRequest' user.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Add Friend</button>
-          </form>
-        {% else %}
-          <em>Request Sent</em>
-        {% endif %}
-      </li>
-    {% empty %}
-      <li>No other users found.</li>
-    {% endfor %}
-  </ul>
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold text-center mb-5">Users of FitJacket</h2>
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <ul class="list-group shadow-sm mb-5">
+          {% for user in users %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                {{ user.username }}
+                {% if user.id in friends %}
+                  <span class="badge bg-success ms-2">Friend</span>
+                {% elif user.id in sent_requests %}
+                  <span class="text-muted">Request Sent</span>
+                {% endif %}
+              </div>
+              <div>
+                {% if user.id in friends %}
+                  <form method="post" action="{% url 'friends:removeFriend' user.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger">Remove</button>
+                  </form>
+                  <form method="post" action="{% url 'friends:inviteToGroup' 0 user.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <select name="group_id" class="form-select form-select-sm d-inline w-auto">
+                      {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary">Invite</button>
+                  </form>
+                {% elif user.id not in sent_requests %}
+                  <form method="post" action="{% url 'friends:sendRequest' user.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-success">Add Friend</button>
+                  </form>
+                {% endif %}
+              </div>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No other users found.</li>
+          {% endfor %}
+        </ul>
 
-  <h2>Incoming Friend Requests</h2>
-  <ul>
-    {% for request in received_requests %}
-      <li>
-        {{ request.from_user.username }}
-        <form method="post" action="{% url 'friends:respondRequest' request.id %}" style="display:inline;">
+        <h3 class="fw-bold mb-3">Incoming Friend Requests</h3>
+        <ul class="list-group mb-5">
+          {% for request in received_requests %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ request.from_user.username }}
+              <form method="post" action="{% url 'friends:respondRequest' request.id %}" class="d-inline">
+                {% csrf_token %}
+                <button name="action" value="accept" class="btn btn-sm btn-outline-primary">Accept</button>
+                <button name="action" value="reject" class="btn btn-sm btn-outline-secondary">Reject</button>
+              </form>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No incoming requests.</li>
+          {% endfor %}
+        </ul>
+
+        <h3 class="fw-bold mb-3">Create a Workout Group</h3>
+        <form method="post" action="{% url 'friends:createGroup' %}" class="card p-4 shadow-sm mb-4">
           {% csrf_token %}
-          <button name="action" value="accept" type="submit">Accept</button>
-          <button name="action" value="reject" type="submit">Reject</button>
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-success w-100">Create Group</button>
         </form>
-      </li>
-    {% empty %}
-      <li>No incoming requests.</li>
-    {% endfor %}
-  </ul>
-      <h2>Create a Workout Group</h2>
-    <form method="post" action="{% url 'friends:createGroup' %}">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Create Group</button>
-    </form>
-    {% for group in groups %}
-  <div>
-    <strong>{{ group.name }}</strong>
-      <form method="post" action="{% url 'friends:leaveGroup' group.id %}">
-        {% csrf_token %}
-        <button type="submit">Leave Group</button>
-      </form>
+
+        <h3 class="fw-bold mb-3">Your Groups</h3>
+        {% for group in groups %}
+          <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded shadow-sm">
+            <strong>{{ group.name }}</strong>
+            <form method="post" action="{% url 'friends:leaveGroup' group.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">Leave Group</button>
+            </form>
+          </div>
+        {% endfor %}
+
+        <h3 class="fw-bold mb-3 mt-4">Group Invites</h3>
+        <ul class="list-group">
+          {% for invite in group_invites %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              You were invited to <strong>{{ invite.group.name }}</strong> by {{ invite.from_user.username }}
+              <form method="post" action="{% url 'friends:respondGroupInvite' invite.id %}">
+                {% csrf_token %}
+                <button name="action" value="accept" class="btn btn-sm btn-outline-primary">Accept</button>
+              </form>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No group invites.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
-  <h2>Group Invites</h2>
-<ul>
-  {% for invite in group_invites %}
-    <li>
-      You were invited to <strong>{{ invite.group.name }}</strong> by {{ invite.from_user.username }}
-      <form method="post" action="{% url 'friends:respondGroupInvite' invite.id %}" style="display:inline;">
-        {% csrf_token %}
-        <button name="action" value="accept" type="submit">Accept</button>
-      </form>
-    </li>
-  {% empty %}
-    <li>No group invites.</li>
-  {% endfor %}
-</ul>
-{% endfor %}
+</section>
 {% endblock %}

@@ -47,6 +47,32 @@ def coaching_history(request):
     sessions = CoachingSession.objects.filter(user=request.user)
     return render(request, 'ai_coach/history.html', {'sessions': sessions})
 
+@login_required
+def toggle_favorite(request, session_id):
+    session = get_object_or_404(CoachingSession, id=session_id, user=request.user)
+    session.is_favorite = not session.is_favorite
+    session.save()
+    return JsonResponse({'status': 'success', 'is_favorite': session.is_favorite})
+
+@login_required
+def coaching_history(request):
+    category = request.GET.get('category', '')
+    if category and category in dict(CoachingSession.CATEGORY_CHOICES):
+        sessions = CoachingSession.objects.filter(user=request.user, category=category)
+    else:
+        sessions = CoachingSession.objects.filter(user=request.user)
+    
+    favorites_only = request.GET.get('favorites', '') == 'true'
+    if favorites_only:
+        sessions = sessions.filter(is_favorite=True)
+        
+    return render(request, 'ai_coach/history.html', {
+        'sessions': sessions,
+        'current_category': category,
+        'favorites_only': favorites_only,
+        'categories': CoachingSession.CATEGORY_CHOICES,
+    })
+
 def get_ai_coaching_response(question):
     try:
         client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))

@@ -1,4 +1,4 @@
-import openai
+import openai from OpenAI
 from django.conf import settings
 
 class AICoachService:

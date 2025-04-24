@@ -10,13 +10,30 @@ body {
   flex: 1;
 }
 
+/* Navbar tweaks */
 .navbar {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-height: 60px;
+  align-items: center;
+}
+nav.navbar {
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
+}
+
+.navbar-brand {
+  position: relative;
+  overflow: visible;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .navbar-brand img {
+  height: 100px !important;     /* ← whatever height you’d like */
+  width: auto !important;       /* keep its aspect ratio */
   transition: transform 0.2s;
 }
+
 
 .navbar-brand img:hover {
   transform: scale(1.05);
@@ -232,58 +249,58 @@ img[alt="about"] {
 }
 
 @media (max-width: 768px) {
-    .navbar-nav {
-      padding: 1rem 0;
-    }
+  .navbar-nav {
+    padding: 1rem 0;
+  }
 
-    .nav-link {
-      padding: 0.5rem 0;
-    }
+  .nav-link {
+    padding: 0.5rem 0;
+  }
 
-    .card {
-      margin-bottom: 1rem;
-    }
+  .card {
+    margin-bottom: 1rem;
+  }
 
-    .table {
-      margin-bottom: 1rem;
-    }
+  .table {
+    margin-bottom: 1rem;
+  }
 
-    .form-control {
-        margin-bottom: 0.5rem;
-    }
+  .form-control {
+    margin-bottom: 0.5rem;
+  }
 
-    .btn {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 
-    .img-card-400 {
-      max-height: 300px;
-    }
+  .img-card-400 {
+    max-height: 300px;
+  }
 }
 
 @media (max-width: 500px) {
-    .bg-index h2 {
-      font-size: 2rem;
-    }
+  .bg-index h2 {
+    font-size: 2rem;
+  }
 
-    .bg-index p {
-      font-size: 1rem;
-    }
+  .bg-index p {
+    font-size: 1rem;
+  }
 
-    .home-content h4 {
-      font-size: 1.5rem;
-    }
+  .home-content h4 {
+    font-size: 1.5rem;
+  }
 
-    .home-content h5 {
-      font-size: 1rem;
-    }
+  .home-content h5 {
+    font-size: 1rem;
+  }
 
-    .home-welcome {
-      padding: 1rem;
-    }
+  .home-welcome {
+    padding: 1rem;
+  }
 
-    img[alt="GT"] {
-      max-width: 250px;
-    }
+  img[alt="GT"] {
+    max-width: 250px;
+  }
 }

@@ -12,7 +12,7 @@ load_dotenv()
 @login_required
 def coach_home(request):
     form = CoachingForm()
-    recent_sessions = CoachingSession.objects.filter(user=request.user).order_by('-created_at')[:3]
+    recent_sessions = CoachingSession.objects.filter(user=request.user).order_by('-created_at')[:5]
     
     return render(request, 'ai_coach/home.html', {
         'form': form,

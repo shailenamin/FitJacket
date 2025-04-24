@@ -1,108 +1,143 @@
 {% extends 'base.html' %}
-{% load static %}
 {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
 
-<!-- Hero Header -->
-<section class="py-5 text-center" style="background: linear-gradient(135deg, #eef2f7, #ffffff);">
-  <div class="container">
-    <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">AI Fitness Coach</h1>
-    <p class="lead text-muted animate__animated animate__fadeInUp animate__delay-1s">
-      Get personalized, expert fitness advice in seconds.
-    </p>
-  </div>
-</section>
-
-<!-- Main Content -->
-<section class="py-5">
-  <div class="container">
-    <div class="row g-4">
-      <!-- Ask Form Column -->
-      <div class="col-lg-5">
-        <div class="card shadow-lg border-0 animate__animated animate__fadeInLeft">
-          <div class="card-header text-white" style="background: #3b82f6;">
-            <h3 class="mb-0">
-              <i class="bi bi-chat-dots me-2"></i> Ask a Question
-            </h3>
-          </div>
-          <div class="card-body">
-            <form method="post">
-              {% csrf_token %}
-              <!-- Category -->
-              <div class="mb-3">
-                {{ form.category.label_tag }}
-                {{ form.category }}
-                {% if form.category.errors %}
-                  <div class="text-danger small">{{ form.category.errors }}</div>
-                {% endif %}
-              </div>
-              <!-- Question -->
-              <div class="mb-4">
-                {{ form.question.label_tag }}
-                {{ form.question }}
-                {% if form.question.errors %}
-                  <div class="text-danger small">{{ form.question.errors }}</div>
-                {% endif %}
-              </div>
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">
-                  <i class="bi bi-lightbulb me-1"></i> Get Advice
-                </button>
-                <a href="{% url 'ai_coach:history' %}" class="btn btn-outline-secondary">
-                  <i class="bi bi-clock-history me-1"></i> View History
-                </a>
-              </div>
-            </form>
-          </div>
+      <!-- Ask Form Card -->
+      <div class="card shadow-lg animate__animated animate__fadeInLeft">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0"><i class="bi bi-chat-dots me-2"></i> AI Fitness Coach</h3>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              {{ form.category.label_tag }}
+              {{ form.category }}
+            </div>
+            <div class="mb-4">
+              {{ form.question.label_tag }}
+              {{ form.question }}
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-lightbulb me-1"></i> Get Advice
+              </button>
+              <a href="{% url 'ai_coach:history' %}" class="btn btn-link">View History →</a>
+            </div>
+          </form>
         </div>
       </div>
 
-      <!-- Recent Sessions Column -->
-      <div class="col-lg-7">
-        {% if recent_sessions %}
-          <h4 class="mb-4 text-center fw-bold animate__animated animate__fadeInDown">Recent Sessions</h4>
-          {% for session in recent_sessions %}
-            <div class="card mb-3 shadow-sm animate__animated animate__fadeInUp animate__delay-{{ forloop.counter0|add:'2' }}s">
-              <div class="card-body">
-                <div class="d-flex justify-content-between">
-                  <small class="text-muted">{{ session.created_at|date:"F j, Y, g:i a" }}</small>
-                  <span class="badge bg-info text-dark">{{ session.get_category_display }}</span>
-                </div>
-                <h5 class="mt-2">“{{ session.question }}”</h5>
-                <div class="coach-response mt-3">
-                  {{ session.response|linebreaks }}
-                </div>
+      {% if recent_sessions %}
+        <h4 class="mt-5 animate__animated animate__fadeInUp">Recent Sessions</h4>
+        {% for s in recent_sessions %}
+          <div id="session-{{ s.id }}"
+               class="card mb-3 shadow-sm animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-body">
+              <!-- header: date + favorite star -->
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-muted">{{ s.created_at|date:"F j, Y, g:i a" }}</small>
+                <button class="btn btn-sm favorite-btn" data-session-id="{{ s.id }}">
+                  <i class="{% if s.is_favorite %}fas{% else %}far{% endif %} fa-star text-warning"></i>
+                </button>
+              </div>
+
+              <!-- question -->
+              <h5 class="mt-2">[{{ s.get_category_display }}] {{ s.question }}</h5>
+
+              <!-- response -->
+              <div class="mt-3 coach-response">
+                {{ s.response|safe }}
+              </div>
+
+              <!-- helpful feedback -->
+              <div class="mt-4">
+                {% if s.is_helpful is None %}
+                  Was this helpful?
+                  <button class="btn btn-outline-success btn-sm feedback-btn"
+                          data-session-id="{{ s.id }}" data-helpful="yes">👍</button>
+                  <button class="btn btn-outline-danger btn-sm feedback-btn"
+                          data-session-id="{{ s.id }}" data-helpful="no">👎</button>
+                {% else %}
+                  <span class="text-{{ s.is_helpful|yesno:'success,danger' }}">
+                    You marked this as {{ s.is_helpful|yesno:'helpful,not helpful' }}.
+                  </span>
+                {% endif %}
               </div>
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="alert alert-info text-center animate__animated animate__fadeInUp">
-            You haven’t asked anything yet – give it a try!
           </div>
-        {% endif %}
-      </div>
+        {% endfor %}
+      {% endif %}
+
     </div>
   </div>
-</section>
+</div>
 
-<!-- Custom Styles & Animate.css -->
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-/>
 <style>
   .coach-response {
     background: #f8f9fa;
     padding: 1rem;
-    border-left: 5px solid #3b82f6;
-    border-radius: 0.25rem;
+    border-left: 4px solid #0d6efd;
+    border-radius: .25rem;
   }
-  .form-select, .form-control {
+  .favorite-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .favorite-btn:focus {
+    outline: none;
     box-shadow: none;
-    border-radius: 0.375rem;
   }
-  .card-header {
-    font-size: 1.125rem;
+  .feedback-btn {
+    margin-left: .5rem;
   }
 </style>
 
+<script>
+  // favorite toggle
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sid = btn.dataset.sessionId;
+      fetch(`{% url 'ai_coach:toggle_favorite' 0 %}`.replace('0', sid), {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+      })
+      .then(r => r.json())
+      .then(data => {
+        const icon = btn.querySelector('i');
+        if (data.is_favorite) {
+          icon.classList.replace('far','fas');
+        } else {
+          icon.classList.replace('fas','far');
+        }
+      });
+    });
+  });
+
+  // helpful toggle
+  document.querySelectorAll('.feedback-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sid = btn.dataset.sessionId,
+            helpful = btn.dataset.helpful;
+      fetch(`{% url 'ai_coach:toggle_helpful' 0 %}`.replace('0', sid), {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ helpful })
+      })
+      .then(r => r.json())
+      .then(data => {
+        // reload the page to update helpful state
+        window.location.reload();
+      });
+    });
+  });
+</script>
 {% endblock %}

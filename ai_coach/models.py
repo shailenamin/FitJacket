@@ -20,8 +20,11 @@ class CoachingSession(models.Model):
     response = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_favorite = models.BooleanField(default=False)
+    is_helpful = models.BooleanField(null=True)
+
     def __str__(self):
-        return f"{self.user.username} ({self.get_category_display()}) — {self.created_at:%Y-%m-%d %H:%M}"
+        return f"{self.user.username} – {self.created_at:%Y-%m-%d %H:%M}"
 
     class Meta:
         ordering = ['-created_at']

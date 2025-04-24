@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.utils import timezone
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
+import json
+from django.conf import settings
 from .models import Progress
 
 
@@ -45,16 +46,16 @@ def dashboard(request):
             else:
                 messages.error(request, "Goal must be 100 characters or less")
 
-        elif 'complete_goal' in request.POST:
-            goal_id = request.POST.get('goal_id')
-            goal = Goal.objects.get(id=goal_id)
-            goal.completed = True
-            goal.abandoned = False
-            goal.save()
-            messages.success(request, "Goal marked as complete!")
-            profile.current_streak += 1
-            profile.save()
-            return redirect('Dashboard')
+#        elif 'complete_goal' in request.POST:
+#            goal_id = request.POST.get('goal_id')
+#            goal = Goal.objects.get(id=goal_id)
+#            goal.completed = True
+#            goal.abandoned = False
+#            goal.save()
+#            messages.success(request, "Goal marked as complete!")
+#            profile.current_streak += 1
+#            profile.save()
+#            return redirect('Dashboard')
 
         elif 'abandon_goal' in request.POST:
             goal_id = request.POST.get('goal_id')
@@ -108,7 +109,7 @@ def mark_favorite(request):
             goal.favorite = False
             goal.save()
             messages.success(request, "Goal Unfavorited!")
-            return redirect('FavoriteHistory') 
+            return redirect('FavoriteHistory')
 
         elif 'add_goal' in request.POST:
             goal_id = request.POST.get('goal_id')
@@ -131,11 +132,77 @@ def mark_favorite(request):
     })
 
 
+@login_required
+def progress_view(request):
+    user_progress = Progress.objects.filter(user=request.user)
+    completed = Goal.objects.filter(user=request.user, completed=True).count()
+    remaining = Goal.objects.filter(user=request.user, completed=False, abandoned=False)
+    remaining_count = remaining.count()
+    abandoned = Goal.objects.filter(user=request.user, abandoned=True).count()
+
+    total_goals = completed + remaining_count + abandoned
+    if total_goals > 0:
+        total_completion_percentage = round((completed / total_goals) * 100)
+        total_remaining_percentage = 100 - total_completion_percentage
+    else:
+        total_completion_percentage = 0
+        total_remaining_percentage = 100
+
+    return render(request, 'dashboard/progress.html', {
+        'remaining_goals': remaining,
+        'progress_data': user_progress,
+        'completed_goals_count': completed,
+        'remaining_goals_count': remaining_count,
+        'abandoned_goals_count': abandoned,
+        'total_completion_percentage': total_completion_percentage,
+        'total_remaining_percentage': total_remaining_percentage,
+    })
+
+
+@login_required
+def start_goal(request, goal_id):
+    goal = Goal.objects.get(id=goal_id)
+
+    return render(request, 'dashboard/start_goal.html', {
+        'goal': goal,
+    })
+
+
+@login_required
+def complete_goal(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        goal_id = request.POST.get('goal_id')
+        calories_burned = float(request.POST.get('calories_burned'))
+        total_seconds_elapsed = int(request.POST.get('time_elapsed', 0))
+
+        goal = Goal.objects.get(id=goal_id)
+        goal.progress = (total_seconds_elapsed / goal.total_duration_seconds) * 100
+
+        Progress.objects.create(
+            user=request.user,
+            goal_name=goal.text,
+            progress_value=goal.progress,
+            target_value=goal.total_duration_seconds,
+        )
+
+        profile.total_calories_burnt += calories_burned
+        if (goal.progress >= 100):
+            goal.completed = True
+            profile.current_streak += 1
+        else:
+            goal.total_duration_seconds -= total_seconds_elapsed
+
+        profile.save()
+        goal.save()
+
+        return redirect('progress')
+
+
 def text_formatting(text):
     try:
-        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-        # Prompt the AI to extract exercise, duration, AND calories per minute
         system_prompt = (
             "You will extract exercise type, duration in minutes, and estimate calories burned per minute. "
             "Return in JSON format like this: "
@@ -153,8 +220,6 @@ def text_formatting(text):
 
         response_text = response.choices[0].message.content.strip()
 
-        # parse response_text into a Python dictionary
-        import json
         parsed = json.loads(response_text)
 
         exercise_type = parsed.get("exercise", "Unknown Exercise")
@@ -166,59 +231,3 @@ def text_formatting(text):
     except Exception as e:
         print(f"Error with AI request: {e}")
         return "Break", 0, 0
-
-
-
-@login_required
-def progress_view(request):
-    user_progress = Progress.objects.filter(user=request.user)
-    completed = Goal.objects.filter(user=request.user, completed=True).count()
-    remaining = Goal.objects.filter(user=request.user, completed=False, abandoned=False).count()
-    abandoned = Goal.objects.filter(user=request.user, abandoned=True).count()
-
-    total_goals = completed + remaining + abandoned
-    if total_goals > 0:
-        total_completion_percentage = round((completed / total_goals) * 100)
-        total_remaining_percentage = 100 - total_completion_percentage
-    else:
-        total_completion_percentage = 0
-        total_remaining_percentage = 100
-
-    return render(request, 'dashboard/progress.html', {
-        'progress_data': user_progress,
-        'completed_goals_count': completed,
-        'remaining_goals_count': remaining,
-        'abandoned_goals_count': abandoned,
-        'total_completion_percentage': total_completion_percentage,
-        'total_remaining_percentage': total_remaining_percentage,
-    })
-
-@login_required
-def start_goal(request, goal_id):
-    goal = Goal.objects.get(id=goal_id)
-
-    return render(request, 'dashboard/start_goal.html', {
-        'goal': goal,
-    })
-
-@login_required
-def complete_goal(request):
-    if request.method == 'POST':
-        goal_id = request.POST.get('goal_id')
-        calories_burned = request.POST.get('calories_burned')
-
-        goal = Goal.objects.get(id=goal_id)
-
-        Progress.objects.create(
-            user=request.user,
-            goal_name=goal.text,
-            progress_value=round(float(calories_burned)),
-            target_value=goal.total_duration_seconds,
-        )
-
-        goal.completed = True
-        goal.save()
-
-        return redirect('progress')
-
-

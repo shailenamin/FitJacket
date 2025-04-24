@@ -64,24 +64,25 @@
     </div>
   </div>
 
-  <!-- Goal List with Progress Bars -->
-  <div class="card shadow-sm animate__animated animate__fadeInUp">
-    <div class="card-body">
-      <h5 class="card-title text-center">Goal Details</h5>
-      {% for p in progress_data %}
-        <div class="mb-4">
-          <h6>{{ p.goal_name }}</h6>
-          <div class="progress">
-            <div class="progress-bar bg-success" role="progressbar" style="width: {{ p.progress_value|floatformat:0 }}%;" aria-valuenow="{{ p.progress_value }}" aria-valuemin="0" aria-valuemax="100">
-              {{ p.progress_value }}%
-            </div>
+<!-- Goal List with Progress Bars -->
+<div class="card shadow-sm animate__animated animate__fadeInUp">
+  <div class="card-body">
+    <h5 class="card-title text-center">Remaining Goals</h5>
+    {% for goal in remaining_goals %}
+      <div class="mb-4">
+        <h6>{{ goal.text }}</h6>
+        <div class="progress">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{ goal.progress }}%;" aria-valuenow="{{ goal.progress }}" aria-valuemin="0" aria-valuemax="100">
+            {{ goal.progress|floatformat:2 }}%
           </div>
         </div>
-      {% empty %}
-        <p class="text-muted text-center">No progress data yet.</p>
-      {% endfor %}
-    </div>
+      </div>
+    {% empty %}
+      <p class="text-muted text-center">No remaining goals.</p>
+    {% endfor %}
   </div>
+</div>
+
 
 </div>
 

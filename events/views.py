@@ -2,12 +2,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Event
+from .models import Event, Participation
 from .forms import EventForm
 
 # View to list events
 def about(request):
-    events = Event.objects.order_by('event_date')  # ✅ Sorted upcoming events
+    events = Event.objects.order_by('event_date')# ✅ Sorted upcoming events
+    if request.user.is_authenticated:
+        for event in events:
+            event.is_joined = Participation.objects.filter(user=request.user, event=event).exists()
     return render(request, 'events/events.html', {'events': events})
 
 # View to create a new event
@@ -26,3 +29,11 @@ def create_group(request):
     else:
         form = EventForm()
     return render(request, 'events/create_event.html', {'form': form})
+
+@login_required
+def join_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if Participation.objects.filter(user=request.user, event=event).exists():
+        return redirect('events.about')
+    Participation.objects.create(user=request.user, event=event)
+    return redirect('events.about')

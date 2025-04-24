@@ -7,9 +7,10 @@ from .forms import EventForm
 
 # View to list events
 def about(request):
-    events = Event.objects.order_by('event_date')  # ✅ Sorted upcoming events
-    for event in events:
-        event.is_joined = Participation.objects.filter(user=request.user, event=event).exists()
+    events = Event.objects.order_by('event_date')# ✅ Sorted upcoming events
+    if request.user.is_authenticated:
+        for event in events:
+            event.is_joined = Participation.objects.filter(user=request.user, event=event).exists()
     return render(request, 'events/events.html', {'events': events})
 
 # View to create a new event

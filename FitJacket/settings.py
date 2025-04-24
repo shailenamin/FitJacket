@@ -10,11 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# point load_dotenv at your .env file
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -143,3 +149,10 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "fitjacket.ian2@gmail.com"
 EMAIL_HOST_PASSWORD = "yekr iddn vqzj ghij"
 DEFAULT_FROM_EMAIL = "fitjacket.ian2@gmail.com"
+
+# point load_dotenv at your .env file
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+# now you can do
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

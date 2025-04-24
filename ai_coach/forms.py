@@ -1,16 +1,22 @@
+# ai_coach/forms.py
 from django import forms
 from .models import CoachingSession
 
 class CoachingForm(forms.ModelForm):
-    question = forms.CharField(
-        label="Ask for fitness advice",
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'e.g., "How can I improve my running endurance?" or "What are some good exercises for beginners?"'
-        })
-    )
-
     class Meta:
         model = CoachingSession
-        fields = ['question']
+        fields = ['category', 'question']
+        widgets = {
+            'category': forms.Select(attrs={
+                'class': 'form-select form-select-lg mb-3'
+            }),
+            'question': forms.Textarea(attrs={
+                'class': 'form-control form-control-lg',
+                'rows': 3,
+                'placeholder': 'E.g. “How do I build up my squat strength safely?”'
+            }),
+        }
+        labels = {
+            'category': 'Topic',
+            'question': 'Your Question'
+        }

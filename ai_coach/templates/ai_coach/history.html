@@ -1,126 +1,134 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
-<div class="container py-5">
-    <h2 class="text-center mb-4">Your Coaching History</h2>
-    
-    <div class="mb-4 text-center">
-        <a href="{% url 'ai_coach:home' %}" class="btn btn-primary">Ask New Question</a>
-    </div>
+<!-- Hero Header -->
+<section class="py-5 text-center" style="background: linear-gradient(135deg, #eef2f7 0%, #ffffff 100%);">
+  <div class="container">
+    <h1 class="display-5 fw-bold animate__animated animate__fadeInDown">Your Coaching History</h1>
+    <p class="text-muted animate__animated animate__fadeInUp animate__delay-1s">
+      Browse your past sessions and mark your favorites.
+    </p>
+    <a href="{% url 'ai_coach:home' %}"
+       class="btn btn-primary btn-lg mt-3 animate__animated animate__fadeInUp animate__delay-2s">
+      <i class="bi bi-plus-circle me-1"></i> Ask New Question
+    </a>
+  </div>
+</section>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Filter Sessions</h5>
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="btn-group w-100" role="group">
-                        <a href="{% url 'ai_coach:history' %}" class="btn btn-outline-primary {% if not current_category %}active{% endif %}">All</a>
-                        {% for code, name in categories %}
-                            <a href="{% url 'ai_coach:history' %}?category={{ code }}" class="btn btn-outline-primary {% if current_category == code %}active{% endif %}">{{ name }}</a>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="favoritesOnly" {% if favorites_only %}checked{% endif %}>
-                        <label class="form-check-label" for="favoritesOnly">Favorites Only</label>
-                    </div>
-                </div>
-            </div>
+<!-- Filter Controls -->
+<section class="py-4">
+  <div class="container">
+    <div class="card shadow-sm mb-5 animate__animated animate__fadeInUp">
+      <div class="card-body d-flex flex-wrap justify-content-between align-items-center">
+        <div class="btn-group mb-2" role="group" aria-label="Category filter">
+          <a href="{% url 'ai_coach:history' %}"
+             class="btn btn-outline-primary {% if not current_category %}active{% endif %}">
+            All
+          </a>
+          {% for code, name in categories %}
+            <a href="{% url 'ai_coach:history' %}?category={{ code }}"
+               class="btn btn-outline-primary {% if current_category == code %}active{% endif %}">
+              {{ name }}
+            </a>
+          {% endfor %}
         </div>
+        <div class="form-check form-switch mb-2">
+          <input class="form-check-input" type="checkbox" id="favoritesOnly" {% if favorites_only %}checked{% endif %}>
+          <label class="form-check-label" for="favoritesOnly">Favorites Only</label>
+        </div>
+      </div>
     </div>
-    
+  </div>
+</section>
+
+<!-- Sessions Grid -->
+<section class="pb-5">
+  <div class="container">
     {% if sessions %}
-        <div class="row">
-            {% for session in sessions %}
-                <div class="col-lg-12 mb-4">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-light">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-primary fw-bold">{{ session.created_at|date:"F j, Y, g:i a" }}</span>
-                                <div>
-                                    <button class="btn btn-sm favorite-btn" data-session-id="{{ session.id }}">
-                                        <i class="{% if session.is_favorite %}fas{% else %}far{% endif %} fa-star text-warning"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-success">Question:</h5>
-                            <p class="card-text mb-4">{{ session.question }}</p>
-                            
-                            <h5 class="card-title text-primary">Response:</h5>
-                            <div class="card-text coach-response">
-                                {{ session.response|linebreaks }}
-                            </div>
-                        </div>
-                    </div>
+      <div class="row gy-4">
+        {% for session in sessions %}
+          <div class="col-md-6 animate__animated animate__fadeInUp animate__delay-{{ forloop.counter0|add:'2' }}s">
+            <div class="card h-100 shadow-sm border-0 session-card session-{{ session.category }}">
+              <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom px-4 py-2">
+                <small class="text-muted">{{ session.created_at|date:"F j, Y, g:i a" }}</small>
+                <button class="btn btn-sm favorite-btn" data-session-id="{{ session.id }}">
+                  <i class="{% if session.is_favorite %}fas{% else %}far{% endif %} fa-star text-warning"></i>
+                </button>
+              </div>
+              <div class="card-body px-4 py-3">
+                <h5 class="text-success mb-2">Question</h5>
+                <p>{{ session.question }}</p>
+                <hr>
+                <h5 class="text-primary mb-2">Response</h5>
+                <div class="coach-response">
+                  {{ session.response|linebreaks }}
                 </div>
-            {% endfor %}
-        </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     {% else %}
-        <div class="alert alert-info text-center">
-            <p>You haven't had any coaching sessions yet.</p>
-            <a href="{% url 'ai_coach:home' %}" class="btn btn-primary mt-2">Get Started</a>
-        </div>
+      <div class="alert alert-info text-center animate__animated animate__fadeInUp">
+        <p>No coaching sessions yet — <a href="{% url 'ai_coach:home' %}">start one now!</a></p>
+      </div>
     {% endif %}
-</div>
+  </div>
+</section>
+
+<!-- Animate.css + Extra Styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 <style>
-    .coach-response {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 10px;
-        border-left: 4px solid #0d6efd;
-    }
+  /* left-border accents by category */
+  .session-strength    { border-left: 5px solid #dc3545; } /* red for Strength */
+  .session-cardio      { border-left: 5px solid #198754; } /* green for Cardio */
+  .session-yoga        { border-left: 5px solid #6f42c1; } /* purple for Yoga */
 
-    .favorite-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .favorite-btn:focus {
-        outline: none;
-        box-shadow: none;
-    }
+  .coach-response {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+  }
+  .favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .favorite-btn:focus {
+    outline: none;
+    box-shadow: none;
+  }
 </style>
 
+<!-- Filter + Favorite JS -->
 <script>
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const sessionId = this.getAttribute('data-session-id');
-            fetch(`/coach/favorite/${sessionId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const icon = this.querySelector('i');
-                    if (data.is_favorite) {
-                        icon.classList.replace('far', 'fas');
-                    } else {
-                        icon.classList.replace('fas', 'far');
-                    }
-                }
-            });
-        });
-    });
-    
-    document.getElementById('favoritesOnly').addEventListener('change', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (this.checked) {
-            urlParams.set('favorites', 'true');
-        } else {
-            urlParams.delete('favorites');
+  document.getElementById('favoritesOnly').addEventListener('change', function() {
+    const params = new URLSearchParams(window.location.search);
+    if (this.checked) params.set('favorites', 'true');
+    else params.delete('favorites');
+    window.location.search = params.toString();
+  });
+
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.sessionId;
+      fetch(`{% url 'ai_coach:toggle_favorite' 0 %}`.replace(/0$/, id), {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
         }
-        
-        window.location.search = urlParams.toString();
+      })
+      .then(r => r.json())
+      .then(data => {
+        const icon = btn.querySelector('i');
+        icon.classList.toggle('fas', data.is_favorite);
+        icon.classList.toggle('far', !data.is_favorite);
+      });
     });
+  });
 </script>
 
 {% endblock %}

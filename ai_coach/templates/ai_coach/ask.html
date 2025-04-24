@@ -1,33 +1,72 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
+<!-- Hero Banner -->
+<section class="py-5 text-center" style="background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);">
+  <div class="container">
+    <h1 class="display-5 fw-bold animate__animated animate__fadeInDown">
+      <i class="bi bi-chat-dots-fill text-primary me-2"></i>Ask Your AI Coach
+    </h1>
+    <p class="lead text-muted animate__animated animate__fadeInUp animate__delay-1s">
+      Get personalized fitness tips—just pick a category and ask away!
+    </p>
+  </div>
+</section>
+
+<!-- Ask Form -->
 <div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Ask Your AI Coach</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            {{ form.question.label_tag }}
-                            {{ form.question }}
-                            {% if form.question.errors %}
-                                <div class="text-danger">{{ form.question.errors }}</div>
-                            {% endif %}
-                            <div class="form-text">Consider being specific about details like your fitness goals, current level, and any limitations.</div>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Submit Question</button>
-                            <a href="{% url 'ai_coach:home' %}" class="btn btn-outline-secondary">Back to Coach Home</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm animate__animated animate__fadeInUp animate__delay-2s border-0">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0"><i class="bi bi-lightbulb-fill me-2"></i>New Coaching Question</h3>
         </div>
+        <div class="card-body p-4">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Category selector -->
+            <div class="mb-4">
+              <label for="{{ form.category.id_for_label }}" class="form-label">
+                {{ form.category.label }}
+              </label>
+              {{ form.category|add_class:"form-select form-select-lg" }}
+              {% if form.category.errors %}
+                <div class="text-danger small">{{ form.category.errors }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Your question -->
+            <div class="mb-4">
+              <label for="{{ form.question.id_for_label }}" class="form-label">
+                {{ form.question.label }}
+              </label>
+              {{ form.question|add_class:"form-control form-control-lg" }}
+              {% if form.question.errors %}
+                <div class="text-danger small">{{ form.question.errors }}</div>
+              {% endif %}
+              <div class="form-text text-muted">
+                Be specific: mention goals, current level, or any injuries.
+              </div>
+            </div>
+
+            <div class="d-grid gap-3">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-send-fill me-1"></i> Get Advice
+              </button>
+              <a href="{% url 'ai_coach:home' %}" class="btn btn-outline-secondary btn-lg">
+                ← Back to Coach Home
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
 {% endblock %}

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'friends',
     'dashboard',
     'events',
+    'ai_coach',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container py-5">
+    <h2 class="text-center mb-4">Your Coaching History</h2>
+    
+    <div class="mb-4 text-center">
+        <a href="{% url 'ai_coach:home' %}" class="btn btn-primary">Ask New Question</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Filter Sessions</h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{% url 'ai_coach:history' %}" class="btn btn-outline-primary {% if not current_category %}active{% endif %}">All</a>
+                        {% for code, name in categories %}
+                            <a href="{% url 'ai_coach:history' %}?category={{ code }}" class="btn btn-outline-primary {% if current_category == code %}active{% endif %}">{{ name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="favoritesOnly" {% if favorites_only %}checked{% endif %}>
+                        <label class="form-check-label" for="favoritesOnly">Favorites Only</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if sessions %}
+        <div class="row">
+            {% for session in sessions %}
+                <div class="col-lg-12 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">{{ session.created_at|date:"F j, Y, g:i a" }}</span>
+                                <div>
+                                    <button class="btn btn-sm favorite-btn" data-session-id="{{ session.id }}">
+                                        <i class="{% if session.is_favorite %}fas{% else %}far{% endif %} fa-star text-warning"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-success">Question:</h5>
+                            <p class="card-text mb-4">{{ session.question }}</p>
+                            
+                            <h5 class="card-title text-primary">Response:</h5>
+                            <div class="card-text coach-response">
+                                {{ session.response|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <p>You haven't had any coaching sessions yet.</p>
+            <a href="{% url 'ai_coach:home' %}" class="btn btn-primary mt-2">Get Started</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .coach-response {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .favorite-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .favorite-btn:focus {
+        outline: none;
+        box-shadow: none;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const sessionId = this.getAttribute('data-session-id');
+            fetch(`/coach/favorite/${sessionId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const icon = this.querySelector('i');
+                    if (data.is_favorite) {
+                        icon.classList.replace('far', 'fas');
+                    } else {
+                        icon.classList.replace('fas', 'far');
+                    }
+                }
+            });
+        });
+    });
+    
+    document.getElementById('favoritesOnly').addEventListener('change', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (this.checked) {
+            urlParams.set('favorites', 'true');
+        } else {
+            urlParams.delete('favorites');
+        }
+        
+        window.location.search = urlParams.toString();
+    });
+</script>
+
+{% endblock %}

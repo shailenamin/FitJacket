@@ -68,6 +68,11 @@
                   <p><strong>Workout Type:</strong> {{ event.get_workout_type_display }}</p>
                   <p><strong>Created by:</strong> {{ event.created_by.username }}</p>
                   <p><strong>Event Date:</strong> 📅 {{ event.event_date|date:"F j, Y" }}</p>
+                  {% if event.is_joined %}
+                    <button class="btn btn-secondary mt-4" disabled>Joined!</button>
+                  {% else %}
+                  <a href="{% url 'events.join' event.id %}" class="btn btn-primary mt-3 w-100">Join Event</a>
+                  {% endif %}
                   {% if event.description %}
                     <hr>
                     <p>{{ event.description }}</p>

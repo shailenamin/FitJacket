@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'workout_plans' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> All Plans
+        </a>
+        <div>
+            <a href="{% url 'delete_workout_plan' plan.id %}" class="btn btn-outline-danger">
+                <i class="fas fa-trash"></i> Delete Plan
+            </a>
+            <a href="#" class="btn btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-center text-primary">{{ plan.title }}</h2>
+            <div class="text-center mb-3">
+                <span class="badge bg-success">{{ plan.get_difficulty_display }}</span>
+                <span class="badge bg-info text-dark">{{ plan.get_frequency_display }}</span>
+                <span class="badge bg-warning text-dark">{{ plan.duration_weeks }} week{% if plan.duration_weeks > 1 %}s{% endif %}</span>
+            </div>
+            <p class="card-text text-center">{{ plan.description }}</p>
+            <p class="text-muted text-center small">Created on {{ plan.created_at|date:"F j, Y" }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for day in workout_days %}
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">Day {{ day.day_number }}: {{ day.focus }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ day.instructions }}</p>
+
+                        {% if day.exercises.all %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Exercise</th>
+                                            <th>Sets</th>
+                                            <th>Reps</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for exercise in day.exercises.all %}
+                                            <tr>
+                                                <td>
+                                                    {{ exercise.name }}
+                                                    {% if exercise.notes %}
+                                                        <i class="fas fa-info-circle text-primary" data-bs-toggle="tooltip" title="{{ exercise.notes }}"></i>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ exercise.sets }}</td>
+                                                <td>{{ exercise.reps }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> This is a rest day or recovery day.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card shadow-sm mt-3 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Tips for Success</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Start with proper warm-ups and end with cool-downs to prevent injuries.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Focus on proper form rather than increasing weight too quickly.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Track your progress and gradually increase intensity as you get stronger.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Stay hydrated and ensure you're getting proper nutrition to support your workouts.
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Rest days are important for recovery and muscle growth.
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+
+<style>
+    @media print {
+        .btn, .no-print {
+            display: none !important;
+        }
+
+        .card {
+            break-inside: avoid;
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}

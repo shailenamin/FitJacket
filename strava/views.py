@@ -10,6 +10,8 @@ from .models import StravaActivity
 
 load_dotenv()
 def strava_import(request):
+    if StravaActivity.objects.filter(user=request.user).exists():
+        return redirect('strava.workouts')
     return render(request, 'strava/strava_import.html')
 
 def strava_login(request):
@@ -30,7 +32,7 @@ def strava_callback(request):
     response = requests.post(token_url, data=data)
     access_token = response.json().get('access_token')
     workouts = get_workouts(access_token)
-    save_workouts(workouts)
+    save_workouts(workouts, request.user)
     return redirect('strava.workouts')
 
 def get_workouts(access_token):
@@ -39,15 +41,20 @@ def get_workouts(access_token):
     response = requests.get(url, headers=headers)
     return response.json()
 
-def save_workouts(workouts):
+def save_workouts(workouts, user):
     for activity in workouts:
-        StravaActivity.objects.create(
-            name=activity['name'],
-            activity_type=activity['type'],
-            distance=activity['distance'],
-            moving_time=activity['moving_time'],
-            date=activity['start_date'],
+        strava_id = activity['id']
+        defaults = {
+            'name': activity['name'],
+            'activity_type': activity['type'],
+            'distance': activity['distance'],
+            'moving_time': activity['moving_time'],
+            'date': activity['start_date'],
+        }
+        StravaActivity.objects.update_or_create(
+            user=user, strava_id=strava_id, defaults=defaults
         )
+
 
 def show_workouts(request):
     workouts = StravaActivity.objects.all()  # Get all imported workouts

@@ -165,7 +165,6 @@ def complete_goal(request):
             user=request.user,
             goal_name=goal.text,
             progress_value=goal.progress,
-            target_value=goal.total_duration_seconds,
         )
 
         profile.total_calories_burnt += calories_burned

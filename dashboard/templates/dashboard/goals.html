@@ -130,12 +130,27 @@
   <div class="card bg-primary text-white shadow-lg h-100 p-4">
     <div class="row">
       <div class="col-md-9">
-        <h4 class="mb-3">🤖 Need fitness guidance?</h4>
+        <h4 class="mb-3">🤖 Fitness Guidance</h4>
         <p class="mb-3">Get personalized workout advice, training tips, and nutrition guidance from your AI Coach.</p>
         <a href="{% url 'ai_coach:home' %}" class="btn btn-light">Ask Your Coach</a>
       </div>
     </div>
   </div>
+  <div class="card bg-gradient-primary text-white shadow-lg h-100 p-4">
+      <div class="row">
+        <div class="col-md-2 d-flex align-items-center justify-content-center">
+          <i class="fas fa-dumbbell fa-4x"></i>
+        </div>
+        <div class="col-md-7">
+          <h4 class="mb-3">🏋️‍♂️ Personalized Workout Plans</h4>
+          <p class="mb-3">Have our AI generate a customized workout plan based on your fitness goals and preferences.</p>
+        </div>
+        <div class="col-md-3 d-flex align-items-center justify-content-center">
+          <a href="{% url 'generate_workout_plan' %}" class="btn btn-light btn-lg">Create Plan</a>
+          <a href="{% url 'workout_plans' %}" class="btn btn-outline-light ms-2">My Plans</a>
+        </div>
+      </div>
+    </div>
 </div>
 </div>
 

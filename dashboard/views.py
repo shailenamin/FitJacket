@@ -1,14 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import Goal, Profile
+from .models import Goal, Profile, Progress
 from django.contrib import messages
 from django.utils import timezone
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
 from django.conf import settings
-from .models import Progress
-
 
 load_dotenv()
 
@@ -29,33 +27,21 @@ def dashboard(request):
 
             if end_date <= start_date:
                 messages.error(request, "End date cannot be before or on the start date.")
+
             elif text and len(text) <= 100:
                 exercise_type, duration_minutes, calories_per_minute = text_formatting(text)
+
+                if duration_minutes < 0.01:
+                    messages.error(request, "Exercise duration has to be greater than 1 second.")
+                    return redirect('Dashboard')
+
                 goal_text = f"{exercise_type} - {duration_minutes} minutes"
                 start_date = timezone.make_aware(timezone.datetime.strptime(start_date, "%Y-%m-%d"))
                 end_date = timezone.make_aware(timezone.datetime.strptime(end_date, "%Y-%m-%d"))
 
-                Goal.objects.create(
-                    text=goal_text,
-                    user=request.user,
-                    start_date=start_date,
-                    end_date=end_date,
-                    total_duration_seconds=duration_minutes * 60,
-                    calories_burnt_per_second=calories_per_minute / 60
-                )
+                create_goal(request.user, goal_text, start_date, end_date, duration_minutes, calories_per_minute)
             else:
                 messages.error(request, "Goal must be 100 characters or less")
-
-#        elif 'complete_goal' in request.POST:
-#            goal_id = request.POST.get('goal_id')
-#            goal = Goal.objects.get(id=goal_id)
-#            goal.completed = True
-#            goal.abandoned = False
-#            goal.save()
-#            messages.success(request, "Goal marked as complete!")
-#            profile.current_streak += 1
-#            profile.save()
-#            return redirect('Dashboard')
 
         elif 'abandon_goal' in request.POST:
             goal_id = request.POST.get('goal_id')
@@ -115,13 +101,10 @@ def mark_favorite(request):
             goal_id = request.POST.get('goal_id')
             goal = Goal.objects.get(id=goal_id)
             time_diff = goal.end_date - goal.start_date
+            duration = extract_number(goal.text)
 
-            Goal.objects.create(
-                text=goal.text,
-                user=request.user,
-                start_date=timezone.now(),
-                end_date=timezone.now() + time_diff
-            )
+            create_goal(request.user, goal.text, timezone.now(), timezone.now() + time_diff,
+                        duration, goal.calories_burnt_per_second * 60)
 
             messages.success(request, "Goal added to Dashbord!")
             return redirect('Dashboard')
@@ -140,13 +123,13 @@ def progress_view(request):
     remaining_count = remaining.count()
     abandoned = Goal.objects.filter(user=request.user, abandoned=True).count()
 
-    total_goals = completed + remaining_count + abandoned
-    if total_goals > 0:
-        total_completion_percentage = round((completed / total_goals) * 100)
-        total_remaining_percentage = 100 - total_completion_percentage
-    else:
-        total_completion_percentage = 0
-        total_remaining_percentage = 100
+    total_progression = 100
+    if (remaining_count != 0):
+        total_progression = 0
+        for goal in remaining:
+            total_progression += goal.progress
+        total_progression /= remaining_count
+        total_progression = round(total_progression, 2)
 
     return render(request, 'dashboard/progress.html', {
         'remaining_goals': remaining,
@@ -154,8 +137,7 @@ def progress_view(request):
         'completed_goals_count': completed,
         'remaining_goals_count': remaining_count,
         'abandoned_goals_count': abandoned,
-        'total_completion_percentage': total_completion_percentage,
-        'total_remaining_percentage': total_remaining_percentage,
+        'total_progression_percentage': total_progression
     })
 
 
@@ -231,3 +213,30 @@ def text_formatting(text):
     except Exception as e:
         print(f"Error with AI request: {e}")
         return "Break", 0, 0
+
+
+def create_goal(user, goal_text, start_date, end_date, duration_minutes, calories_per_minute=1):
+
+    goal = Goal.objects.create(
+        text=goal_text,
+        user=user,
+        start_date=start_date,
+        end_date=end_date,
+        total_duration_seconds=duration_minutes * 60,
+        calories_burnt_per_second=calories_per_minute / 60
+    )
+    return goal
+
+
+def extract_number(text):
+    number = ''
+    decimal_found = False
+
+    for char in text:
+        if char.isdigit():
+            number += char
+        elif char == '.' and not decimal_found:
+            number += char
+            decimal_found = True
+
+    return float(number) if number else None

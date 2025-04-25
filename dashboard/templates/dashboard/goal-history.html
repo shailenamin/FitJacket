@@ -6,19 +6,35 @@
   <a href="{% url 'Dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
 
   <div class="row g-4">
+    <!-- Completed Goals Section -->
     <div class="col-md-6">
       <h4>✅ Completed Goals</h4>
       {% if completed_goals %}
         <ul class="list-group">
           {% for goal in completed_goals %}
-            <li class="list-group-item">{{ goal.text }}
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between">
+                <span>{{ goal.text }}</span>
+                <span class="badge bg-success">Completed</span>
+              </div>
               <div class="mt-2 text-muted">
                 <small>
                   <strong>Start Date:</strong> {{ goal.start_date|date:"m/d/Y" }} <br>
                   <strong>End Date:</strong> {{ goal.end_date|date:"m/d/Y" }}
                 </small>
               </div>
-              <span class="badge bg-success">Completed</span></li>
+              <div class="progress mt-2" style="height: 25px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  role="progressbar" 
+                  style="width: {{ goal.progress }}%;"
+                  aria-valuenow="{{ goal.progress }}" 
+                  aria-valuemin="0" 
+                  aria-valuemax="100">
+                  {{ goal.progress|floatformat:2 }}%
+                </div>
+              </div>
+            </li>
           {% endfor %}
         </ul>
       {% else %}
@@ -26,19 +42,35 @@
       {% endif %}
     </div>
 
+    <!-- Abandoned Goals Section -->
     <div class="col-md-6">
       <h4>❌ Abandoned Goals</h4>
       {% if abandoned_goals %}
         <ul class="list-group">
           {% for goal in abandoned_goals %}
-            <li class="list-group-item">{{ goal.text }} 
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between">
+                <span>{{ goal.text }}</span>
+                <span class="badge bg-danger">Abandoned</span>
+              </div>
               <div class="mt-2 text-muted">
                 <small>
                   <strong>Start Date:</strong> {{ goal.start_date|date:"m/d/Y" }} <br>
                   <strong>End Date:</strong> {{ goal.end_date|date:"m/d/Y" }}
                 </small>
               </div>
-              <span class="badge bg-danger">Abandoned</span></li>
+              <div class="progress mt-2" style="height: 25px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  role="progressbar" 
+                  style="width: {{ goal.progress }}%;"
+                  aria-valuenow="{{ goal.progress }}" 
+                  aria-valuemin="0" 
+                  aria-valuemax="100">
+                  {{ goal.progress|floatformat:2 }}%
+                </div>
+              </div>
+            </li>
           {% endfor %}
         </ul>
       {% else %}

@@ -179,12 +179,14 @@ const statusChart = new Chart(ctx2, {
 
 // --- Total Progress Circle ---
 const ctx3 = document.getElementById('totalProgressCircle').getContext('2d');
+const totalProgressValue = {{ total_progression_percentage }};  // from Django context
+
 const totalProgressCircle = new Chart(ctx3, {
     type: 'doughnut',
     data: {
         labels: ['Progress', 'Remaining'],
         datasets: [{
-            data: [{{ total_completion_percentage }}, {{ total_remaining_percentage }}],
+            data: [totalProgressValue, 100 - totalProgressValue],
             backgroundColor: ['rgba(0, 200, 83, 0.7)', 'rgba(224, 224, 224, 0.7)'],
             borderColor: ['rgba(0, 200, 83, 1)', 'rgba(224, 224, 224, 1)'],
             borderWidth: 2
@@ -200,11 +202,11 @@ const totalProgressCircle = new Chart(ctx3, {
         plugins: {
             legend: { display: false },
             tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.label + ': ' + context.parsed + '%';
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed + '%';
+                    }
                 }
-              }
             }
         }
     }

@@ -48,29 +48,20 @@
     </div>
   </div>
 
-  <!-- Progress Chart (Bar Chart) -->
-  <div class="card shadow-sm mb-5 animate__animated animate__fadeInUp">
-    <div class="card-body">
-      <h5 class="card-title">Progress Toward Each Goal</h5>
-      <canvas id="progressChart" width="400" height="200"></canvas>
-    </div>
-  </div>
-
-  <!-- Goal Completion Status (Circle Chart) -->
-  <div class="card shadow-sm mb-5 animate__animated animate__fadeInUp">
-    <div class="card-body">
-      <h5 class="card-title">Goal Completion Status</h5>
-      <canvas id="statusChart" width="400" height="200"></canvas>
-    </div>
-  </div>
 
 <!-- Goal List with Progress Bars -->
-<div class="card shadow-sm animate__animated animate__fadeInUp">
+<div class="card shadow-sm animate__animated animate__fadeInUp mb-5">
   <div class="card-body">
     <h5 class="card-title text-center">Remaining Goals</h5>
     {% for goal in remaining_goals %}
       <div class="mb-4">
-        <h6>{{ goal.text }}</h6>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">{{ goal.text }}</h6>
+          <form method="POST" action="{% url 'start_goal' goal.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Resume</button>
+          </form>
+        </div>
         <div class="progress">
           <div class="progress-bar bg-success" role="progressbar" style="width: {{ goal.progress }}%;" aria-valuenow="{{ goal.progress }}" aria-valuemin="0" aria-valuemax="100">
             {{ goal.progress|floatformat:2 }}%
@@ -82,6 +73,26 @@
     {% endfor %}
   </div>
 </div>
+
+
+
+  <!-- Progress Chart (Bar Chart) -->
+  <div class="card shadow-sm mb-5 animate__animated animate__fadeInUp">
+    <div class="card-body">
+      <h5 class="card-title">Progress Toward Each Goal</h5>
+      <canvas id="progressChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+
+  
+  <!-- Goal Completion Status (Circle Chart) -->
+  <div class="card shadow-sm mb-5 animate__animated animate__fadeInUp">
+    <div class="card-body">
+      <h5 class="card-title">Goal Completion Status</h5>
+      <canvas id="statusChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+
 
 
 </div>

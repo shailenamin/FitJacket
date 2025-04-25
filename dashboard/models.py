@@ -52,3 +52,59 @@ class Progress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.goal_name} ({self.progress_value}/{self.target_value})"
+
+class WorkoutPlan(models.Model):
+    FREQUENCY_CHOICES = [
+        ('daily', 'Daily'),
+        ('2-3x', '2-3 times per week'),
+        ('3-4x', '3-4 times per week'),
+        ('5-6x', '5-6 times per week'),
+        ('weekly', 'Weekly'),
+    ]
+
+    DIFFICULTY_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, default='3-4x')
+    difficulty = models.CharField(max_length=15, choices=DIFFICULTY_CHOICES, default='beginner')
+    duration_weeks = models.PositiveIntegerField(default=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} for {self.user.username}"
+
+
+class WorkoutDay(models.Model):
+    workout_plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE, related_name='workout_days')
+    day_number = models.PositiveIntegerField()
+    focus = models.CharField(max_length=100)
+    instructions = models.TextField()
+
+    class Meta:
+        ordering = ['day_number']
+
+    def __str__(self):
+        return f"Day {self.day_number}: {self.focus}"
+
+
+class Exercise(models.Model):
+    workout_day = models.ForeignKey(WorkoutDay, on_delete=models.CASCADE, related_name='exercises')
+    name = models.CharField(max_length=100)
+    sets = models.PositiveIntegerField(default=3)
+    reps = models.CharField(max_length=50,
+                            default="8-12")
+    notes = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.name}: {self.sets} x {self.reps}"

@@ -7,3 +7,4 @@ venv/
 .env
 dashboard/.env
 /FitJacket/__pycache__
+db.sqlite3

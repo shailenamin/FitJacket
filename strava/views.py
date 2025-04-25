@@ -10,8 +10,6 @@ from .models import StravaActivity
 
 load_dotenv()
 def strava_import(request):
-    if StravaActivity.objects.filter(user=request.user).exists():
-        return redirect('strava.workouts')
     return render(request, 'strava/strava_import.html')
 
 def strava_login(request):
@@ -54,7 +52,6 @@ def save_workouts(workouts, user):
         StravaActivity.objects.update_or_create(
             user=user, strava_id=strava_id, defaults=defaults
         )
-
 
 def show_workouts(request):
     workouts = StravaActivity.objects.all()  # Get all imported workouts

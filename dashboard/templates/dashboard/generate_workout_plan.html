@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0">Generate Your Custom Workout Plan</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">Our AI will create a personalized workout plan based on your goals and preferences.</p>
+                    </div>
+
+                    {% if form.fitness_goals.field.queryset.count == 0 %}
+                        <div class="alert alert-warning">
+                            <h5 class="alert-heading">No active goals found!</h5>
+                            <p>You need at least one active fitness goal to generate a workout plan.</p>
+                            <hr>
+                            <p class="mb-0">
+                                <a href="{% url 'Dashboard' %}" class="btn btn-primary">Create a Goal</a>
+                            </p>
+                        </div>
+                    {% else %}
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">1. Select goals for your workout plan</h4>
+                                <div class="form-group">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            {% for choice in form.fitness_goals %}
+                                                <div class="form-check">
+                                                    {{ choice.tag }}
+                                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                        {{ choice.choice_label }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if form.fitness_goals.errors %}
+                                        <div class="text-danger">{{ form.fitness_goals.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">2. What's your experience level?</h4>
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% for choice in form.experience_level %}
+                                            <div class="form-check mb-2">
+                                                {{ choice.tag }}
+                                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                    {{ choice.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% if form.experience_level.errors %}
+                                    <div class="text-danger">{{ form.experience_level.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">3. How often can you work out?</h4>
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% for choice in form.workout_frequency %}
+                                            <div class="form-check mb-2">
+                                                {{ choice.tag }}
+                                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                    {{ choice.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% if form.workout_frequency.errors %}
+                                    <div class="text-danger">{{ form.workout_frequency.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">4. How much time do you want your plan to cover?</h4>
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% for choice in form.plan_duration %}
+                                            <div class="form-check mb-2">
+                                                {{ choice.tag }}
+                                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                    {{ choice.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% if form.plan_duration.errors %}
+                                    <div class="text-danger">{{ form.plan_duration.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">5. What equipment can you access?</h4>
+                                <div class="card">
+                                    <div class="card-body">
+                                        {% for choice in form.equipment_access %}
+                                            <div class="form-check mb-2">
+                                                {{ choice.tag }}
+                                                <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                    {{ choice.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% if form.equipment_access.errors %}
+                                    <div class="text-danger">{{ form.equipment_access.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <h4 class="mb-3">6. Any special considerations?</h4>
+                                <div class="form-group">
+                                    {{ form.additional_notes.label_tag }}
+                                    {{ form.additional_notes }}
+                                    <small class="form-text text-muted">Include any injuries, limitations, or specific areas you want to focus on.</small>
+                                    {% if form.additional_notes.errors %}
+                                        <div class="text-danger">{{ form.additional_notes.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Generate My Workout Plan</button>
+                                <a href="{% url 'Dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

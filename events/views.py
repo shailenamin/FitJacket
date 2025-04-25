@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.core.mail import send_mail
 from .models import Event, Participation
 from .forms import EventForm
 
@@ -36,4 +37,11 @@ def join_event(request, event_id):
     if Participation.objects.filter(user=request.user, event=event).exists():
         return redirect('events.about')
     Participation.objects.create(user=request.user, event=event)
+    send_mail(
+        f"See you at {event.name}!",
+        f"Hi {request.user.username},\n\nThank you for signing up for the {event.name} on {event.event_date} with FitJacket.\n\n{event.description}\n\nWe look forward to seeing you there!",
+        "fitjacket.ian2@gmail.com",
+        [request.user.email],
+        fail_silently=False,
+    )
     return redirect('events.about')

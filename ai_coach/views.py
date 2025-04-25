@@ -90,6 +90,7 @@ def get_ai_coaching_response(user, question, category):
             "You are an expert fitness coach. Keep your responses very brief "
             "(no more than 3 sentences or 4 bullet points). Use clear, simple "
             "language so beginners can understand. Focus only on the core advice—no extra fluff."
+            "If the question is not related to fitness, respond with 'I can only help with fitness-related questions."
         )}
     ]
     for s in history:

@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.utils.timezone import localtime
-
 
 
 class Goal(models.Model):
@@ -16,6 +14,7 @@ class Goal(models.Model):
     favorite = models.BooleanField(default=False)
     total_duration_seconds = models.IntegerField(default=0)
     calories_burnt_per_second = models.FloatField(default=0.0)
+    progress = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.text
@@ -39,6 +38,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     current_streak = models.PositiveIntegerField(default=0)
     max_streak = models.PositiveIntegerField(default=0)
+    total_calories_burnt = models.FloatField(default=0.0)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -53,4 +53,3 @@ class Progress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.goal_name} ({self.progress_value}/{self.target_value})"
-

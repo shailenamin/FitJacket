@@ -5,7 +5,12 @@
 <div class="container text-center my-5">
     <h1 class="mb-4">{{ goal.text }}</h1>
 
-    <h3 id="timer">0:00</h3>
+    <!-- Timer Display for Workout -->
+    <h3 id="timer">Time Elapsed: 0:00</h3>
+
+    <!-- Time Remaining Countdown -->
+    <h3 id="time-remaining">Time Remaining: {{ goal.total_duration_seconds }} seconds</h3>
+    
     <h3 id="calories">Calories Burned: 0 kcal</h3>
 
     <button id="start-btn" class="btn btn-success btn-lg my-3">Start Workout</button>
@@ -18,6 +23,7 @@
         {% csrf_token %}
         <input type="hidden" name="goal_id" value="{{ goal.id }}">
         <input type="hidden" id="calories_burned_input" name="calories_burned" value="0">
+        <input type="hidden" id="time_elapsed_input" name="time_elapsed" value="0">
         <button type="submit" class="btn btn-primary">Save Workout ✅</button>
     </form>
 
@@ -28,13 +34,15 @@
 
 <script>
 // Variables
-let totalSecondsElapsed = 0;
+let totalSecondsElapsed = 0;  // Timer for elapsed time (workout timer)
+let totalSecondsRemaining = {{ goal.total_duration_seconds }};
 let caloriesPerSecond = {{ goal.calories_burnt_per_second|floatformat:2 }};
 let caloriesBurned = 0;
 let interval;
 
 // DOM Elements
 const timerDisplay = document.getElementById('timer');
+const timeRemainingDisplay = document.getElementById('time-remaining');
 const caloriesDisplay = document.getElementById('calories');
 const startButton = document.getElementById('start-btn');
 const finishButton = document.getElementById('finish-btn');
@@ -82,29 +90,44 @@ startButton.addEventListener('click', function() {
     finishButton.style.display = 'inline-block'; // Show the finish button
 
     interval = setInterval(function() {
-        totalSecondsElapsed++;
+        totalSecondsElapsed++;  // Increment workout time
         caloriesBurned += caloriesPerSecond;
 
-        // Update timer in mm:ss format
-        let minutes = Math.floor(totalSecondsElapsed / 60);
-        let seconds = totalSecondsElapsed % 60;
-        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        // Update Workout Timer in mm:ss format
+        let minutesElapsed = Math.floor(totalSecondsElapsed / 60);
+        let secondsElapsed = totalSecondsElapsed % 60;
+        timerDisplay.textContent = `Time Elapsed: ${minutesElapsed}:${secondsElapsed < 10 ? '0' : ''}${secondsElapsed}`;
 
+        // Update Calories Burned
         caloriesDisplay.textContent = "Calories Burned: " + caloriesBurned.toFixed(2) + " kcal";
+
+        if (totalSecondsRemaining > 0) {
+            totalSecondsRemaining--;
+            let minutesRemaining = Math.floor(totalSecondsRemaining / 60);
+            let secondsRemaining = totalSecondsRemaining % 60;
+            timeRemainingDisplay.textContent = `Time Remaining: ${minutesRemaining}:${secondsRemaining < 10 ? '0' : ''}${secondsRemaining}`;
+        } else {
+            timeRemainingDisplay.textContent = `Time Remaining: 0:00`;
+            caloriesChart.data.datasets[0].backgroundColor = 'rgba(255, 99, 132, 0.4)';
+            caloriesChart.data.datasets[0].borderColor = 'rgba(255, 99, 132, 1)';
+            caloriesChart.update();
+        }
 
         // Update chart
         caloriesChart.data.labels.push(totalSecondsElapsed);
         caloriesChart.data.datasets[0].data.push(caloriesBurned);
         caloriesChart.update();
+
     }, 1000);
 });
 
 // Finish Button Logic
 finishButton.addEventListener('click', function() {
-    clearInterval(interval); // Stop counting
-    document.getElementById('calories_burned_input').value = caloriesBurned.toFixed(2); // Update hidden input
-    completeForm.style.display = 'block'; // Show Save form
-    finishButton.disabled = true; // Disable finish button after use
+    clearInterval(interval);  // Stop counting
+    document.getElementById('calories_burned_input').value = caloriesBurned.toFixed(2);  // Update hidden input
+    document.getElementById('time_elapsed_input').value = totalSecondsElapsed;  // Time elapsed
+    completeForm.style.display = 'block';  // Show Save form
+    finishButton.disabled = true;  // Disable finish button after use
 });
 
 </script>

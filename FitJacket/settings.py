@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'dashboard',
     'events',
     'ai_coach',
+    'strava',
 ]
 
 MIDDLEWARE = [

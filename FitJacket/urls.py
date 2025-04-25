@@ -26,4 +26,5 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('events/', include('events.urls')),
     path('coach/', include('ai_coach.urls', namespace='ai_coach')),
+    path('strava/', include('strava.urls')),
 ]

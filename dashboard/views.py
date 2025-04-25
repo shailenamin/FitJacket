@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import Goal, Profile, Progress
+from .models import Goal, Profile, Progress, WorkoutPlan, WorkoutDay, Exercise
 from django.contrib import messages
 from django.utils import timezone
 from openai import OpenAI
 from dotenv import load_dotenv
+import os
+from .forms import WorkoutPlanGeneratorForm
 import json
 from django.conf import settings
 
@@ -239,3 +241,179 @@ def extract_number(text):
             decimal_found = True
 
     return float(number) if number else None
+
+
+@login_required
+def generate_workout_plan(request):
+    if request.method == 'POST':
+        form = WorkoutPlanGeneratorForm(request.user, request.POST)
+        if form.is_valid():
+            goals = form.cleaned_data['fitness_goals']
+            experience = form.cleaned_data['experience_level']
+            frequency = form.cleaned_data['workout_frequency']
+            duration = form.cleaned_data['plan_duration']
+            equipment = form.cleaned_data['equipment_access']
+            notes = form.cleaned_data['additional_notes']
+
+            goal_descriptions = [goal.text for goal in goals]
+
+            workout_plan_data = generate_ai_workout_plan(
+                goal_descriptions,
+                experience,
+                frequency,
+                duration,
+                equipment,
+                notes
+            )
+
+            workout_plan = WorkoutPlan.objects.create(
+                user=request.user,
+                title=workout_plan_data['title'],
+                description=workout_plan_data['description'],
+                frequency=frequency,
+                difficulty=experience,
+                duration_weeks=duration
+            )
+
+            for day_data in workout_plan_data['workout_days']:
+                workout_day = WorkoutDay.objects.create(
+                    workout_plan=workout_plan,
+                    day_number=day_data['day_number'],
+                    focus=day_data['focus'],
+                    instructions=day_data['instructions']
+                )
+
+                for i, exercise_data in enumerate(day_data['exercises']):
+                    Exercise.objects.create(
+                        workout_day=workout_day,
+                        name=exercise_data['name'],
+                        sets=exercise_data['sets'],
+                        reps=exercise_data['reps'],
+                        notes=exercise_data.get('notes', ''),
+                        order=i
+                    )
+
+            messages.success(request, "Your personalized workout plan has been created!")
+            return redirect('workout_plan_detail', plan_id=workout_plan.id)
+    else:
+        form = WorkoutPlanGeneratorForm(request.user)
+
+    return render(request, 'dashboard/generate_workout_plan.html', {
+        'form': form
+    })
+
+
+def generate_ai_workout_plan(goals, experience, frequency, duration, equipment, notes):
+    try:
+        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+        system_prompt = """
+        You are an expert fitness trainer who creates personalized workout plans.
+        Given the user's goals, experience level, and constraints, create a detailed workout plan.
+
+        Your response should be in JSON format with the following structure:
+        {
+            "title": "Name of the workout plan",
+            "description": "Overall description of the plan and its benefits",
+            "workout_days": [
+                {
+                    "day_number": 1,
+                    "focus": "Main focus of this workout (e.g., 'Upper Body', 'Legs', 'Cardio', 'Rest Day')",
+                    "instructions": "General instructions for this day's workout",
+                    "exercises": [
+                        {
+                            "name": "Exercise name",
+                            "sets": number_of_sets,
+                            "reps": "repetition range or duration",
+                            "notes": "Any special instructions or form cues"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        Based on the workout frequency, include an appropriate number of workout days in a week.
+        Include rest days as appropriate.
+        Design the plan to progress over the specified duration.
+        For each exercise, provide clear instructions and appropriate sets/reps.
+        """
+
+        # Construct the user message with all the parameters
+        user_message = f"""
+        Create a personalized workout plan with the following parameters:
+
+        Goals: {', '.join(goals)}
+        Experience level: {experience}
+        Workout frequency: {frequency}
+        Duration: {duration} weeks
+        Equipment available: {equipment}
+
+        Additional notes: {notes if notes else 'None provided'}
+        """
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=2000,
+        )
+
+        workout_plan_json = response.choices[0].message.content.strip()
+        # Parse the JSON response
+        workout_plan = json.loads(workout_plan_json)
+
+        return workout_plan
+
+    except Exception as e:
+        print(f"Error with AI request: {e}")
+        return {
+            "title": "Basic Fitness Plan",
+            "description": "A simple workout plan to help you get started. There was an issue generating your personalized plan.",
+            "workout_days": [
+                {
+                    "day_number": 1,
+                    "focus": "Full Body",
+                    "instructions": "Perform these exercises with proper form.",
+                    "exercises": [
+                        {"name": "Push-ups", "sets": 3, "reps": "8-12", "notes": "Keep your core tight"},
+                        {"name": "Bodyweight Squats", "sets": 3, "reps": "12-15", "notes": ""},
+                        {"name": "Plank", "sets": 3, "reps": "30 seconds", "notes": ""}
+                    ]
+                }
+            ]
+        }
+
+
+@login_required
+def workout_plans(request):
+    plans = WorkoutPlan.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'dashboard/workout_plans.html', {
+        'plans': plans
+    })
+
+
+@login_required
+def workout_plan_detail(request, plan_id):
+    plan = get_object_or_404(WorkoutPlan, id=plan_id, user=request.user)
+    workout_days = plan.workout_days.all().prefetch_related('exercises')
+
+    return render(request, 'dashboard/workout_plan_detail.html', {
+        'plan': plan,
+        'workout_days': workout_days
+    })
+
+
+@login_required
+def delete_workout_plan(request, plan_id):
+    plan = get_object_or_404(WorkoutPlan, id=plan_id, user=request.user)
+
+    if request.method == 'POST':
+        plan.delete()
+        messages.success(request, "Workout plan deleted successfully.")
+        return redirect('workout_plans')
+
+    return render(request, 'dashboard/delete_workout_plan.html', {
+        'plan': plan
+    })

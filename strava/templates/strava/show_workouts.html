@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Your Imported Workouts</h1>
+<ul>
+{% for workout in workouts %}
+    <li>{{ workout.name }} - {{ workout.activity_type }} - {{ workout.distance }} meters</li>
+{% endfor %}
+</ul>
+{% endblock %}

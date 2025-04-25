@@ -53,6 +53,7 @@
             {% if user.is_authenticated %}
               <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'Dashboard' %}" aria-current="{% if request.path == '/dashboard/' %}page{% endif %}">Dashboard</a>
               <a class="nav-link" href="{% url 'friends:userList' %}">Friends/Workout Groups</a>
+              <a class="nav-link" href="{% url 'strava.import' %}">Strava Integration</a>
               {% if is_admin %}
                 <a class="nav-link" href="{% url 'administratorPanel.emailUsers' %}">Email Users</a>
               {% endif %}
@@ -113,7 +114,7 @@
           </div>
         </div>
         <hr class="border-secondary my-4">
-        <div class="text-center small text-muted pt-3">
+        <div class="text-center small" style="color: #6c757d;">
           Designed by Leland Green, Shailen Amin, Fardin Ahmed, Vansh Nishchal & Payton Silverman<br>
           © 2025 FitJacket. All rights reserved.
         </div>

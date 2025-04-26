@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 from .models import Goal, Profile
 from django.contrib import messages
 from django.utils import timezone
-from openai import OpenAI
-from dotenv import load_dotenv
+#from openai import OpenAI
+#from dotenv import load_dotenv
 import os
 
-load_dotenv()
+#load_dotenv()
 
 
 @login_required
@@ -129,7 +129,7 @@ def mark_favorite(request):
 
 def text_formatting(text):
     try:
-        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        #client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
         contents = (
             "You are to extract the type of exercise and duration from the user's sentence. "

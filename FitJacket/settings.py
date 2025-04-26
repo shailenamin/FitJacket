@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'friends',
     'dashboard',
     'events',
+'workoutlogs',
 ]
 
 MIDDLEWARE = [

@@ -31,6 +31,8 @@
             <a class="nav-link" href="{% url 'Dashboard' %}">Dashboard</a>
             <a class="nav-link" href="{% url 'accounts.logout' %}">Logout ({{ user.username }})</a>
             <a class="nav-link" href="{% url 'friends:userList' %}">Friends/Workout Groups</a>
+                <a class="nav-link" href="{% url 'workout_logs' %}">Workout Logs</a>
+
               {% if is_admin %}
               <a class="nav-link" href="{% url 'administratorPanel.emailUsers' %}">Email Users</a>
               {% endif %}

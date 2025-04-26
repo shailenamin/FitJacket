@@ -26,4 +26,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('events/', include('events.urls')),
 
+    path('workout-logs/', include('workoutlogs.urls')),
+
+
 ]

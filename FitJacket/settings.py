@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'events',
     'ai_coach',
     'strava',
+'workoutlogs',
 ]
 
 MIDDLEWARE = [

@@ -4,7 +4,7 @@
 <h1>Your Imported Workouts</h1>
 <ul>
 {% for workout in workouts %}
-    <li>{{ workout.name }} - {{ workout.activity_type }} - {{ workout.distance }} meters</li>
+    <li>{{ workout.activity_type }} - {{ workout.moving_time }} seconds - {{ workout.calories }} calories</li>
 {% endfor %}
 </ul>
 {% endblock %}

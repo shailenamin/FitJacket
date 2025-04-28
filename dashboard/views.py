@@ -187,7 +187,7 @@ def text_formatting(text):
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
         system_prompt = (
-            "You will extract exercise type, duration in minutes, and estimate calories burned per minute. "
+            "You will extract exercise type, duration in minutes, and estimate calories burned per minute. The exercise type should be one that Strava uses. "
             "Return in JSON format like this: "
             "{\"exercise\": \"Jump Rope\", \"duration_minutes\": 20, \"calories_per_minute\": 12}"
         )

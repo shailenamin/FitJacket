@@ -13,7 +13,7 @@ def strava_import(request):
     return render(request, 'strava/strava_import.html')
 
 def strava_login(request):
-    client_id = os.getenv('STRAVA_CLIENT_ID')
+    client_id = settings.STRAVA_CLIENT_ID
     redirect_uri = 'http://localhost:8000/strava/callback'
     auth_url = f"https://www.strava.com/oauth/authorize?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope=read,activity:read"
     return redirect(auth_url)

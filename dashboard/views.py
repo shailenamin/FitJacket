@@ -349,6 +349,7 @@ def generate_ai_workout_plan(goals, experience, frequency, duration, equipment, 
         Equipment available: {equipment}
 
         Additional notes: {notes if notes else 'None provided'}
+        If the information does not relate to fitness or working out, say 'Error' for each field of the JSON response.
         """
 
         response = client.chat.completions.create(

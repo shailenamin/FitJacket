@@ -21,6 +21,29 @@
           {% endfor %}
         </ul>
       </div>
+      <h2 class="fw-bold mb-3 mt-5 text-center">{{ group.name }} Challenges</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <ul class="list-group shadow-sm">
+            {% for challenge in challenges %}
+              <li class="list-group-item">
+                <strong>{{ challenge.name }}</strong>
+                <ul>
+                    <li>Workout Type: {{ challenge.workout_type }}</li>
+                    <li>Challenge Description: {{ challenge.description }}</li>
+                    <li>Challenge End Date: {{ challenge.challenge_end_date }}</li>
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <h3 class="fw-bold mb-3 mt-5 text-center">Create a Group Challenge</h3>
+        <form method="post" action="{% url 'friends:groupChallenge' group.id %}" class="card p-4 shadow-sm mb-4">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-success w-100">Create Group Challenge</button>
+        </form>
     </div>
   </div>
 </section>

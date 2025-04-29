@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Workout Logs</h1>
+  <p>Select the type of workout you did today!</p>
+   <form method="POST">
+  {% csrf_token %}
+  <label for="workout_type">Choose a workout:</label>
+  <select name="workout_type" id="workout_type" required>
+    <option value="Cardio">Cardio</option>
+    <option value="Basketball">Basketball</option>
+    <option value="Upper Body Strength">Upper Body Strength</option>
+    <option value="Yoga">Yoga</option>
+    <option value="Leg Day">Leg Day</option>
+  </select>
+   <br>
+<label for="notes">Notes:</label><br>
+<textarea name="notes" id="notes" rows="3" cols="40" placeholder="How did you feel?"></textarea>
+  <br><br>
+  <button type="submit">Log Workout</button>
+   {% if logged_workout %}
+ <p>You logged: <strong>{{ logged_workout }}</strong>. Great job!</p>
+{% if notes %}
+<p><em>Your note:</em> {{ notes }}</p>
+{% endif %}
+
+{% endif %}
+
+</form>
+
+<hr>
+<h2>Your Past Workout Logs</h2>
+
+{% if all_logs %}
+  <ul>
+    {% for log in all_logs %}
+      <li>
+        <strong>{{ log.workout_type }}</strong> on {{ log.created_at|date:"M d, Y H:i" }}<br>
+        <em>{{ log.notes }}</em>
+      </li>
+      <br>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No logs yet.</p>
+{% endif %}
+
+
+
+{% endblock %}

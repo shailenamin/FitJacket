@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import FriendRequest, Friendship, WorkoutGroup, GroupInvite, GroupMember
+from .models import FriendRequest, Friendship, WorkoutGroup, GroupInvite, GroupMember, Challenge, ChallangeParticipation
 from django.db.models import Q
 from django.core.mail import send_mail
-from .forms import WorkoutGroupForm
+from .forms import WorkoutGroupForm, ChallengeForm
 from dashboard.models import Goal
 
 @login_required
@@ -127,7 +127,25 @@ def group_detail(request, group_id):
     for member in members:
         user_goals = Goal.objects.filter(user=member.user)
         goals_by_user.append((member.user, user_goals))
+    challenges = Challenge.objects.filter(group=group).order_by('challenge_end_date')
     return render(request, 'friends/group.html', {
         'group': group,
         'goals_by_user': goals_by_user,
+        'challenges': challenges,
     })
+
+@login_required
+def create_challenge(request, group_id):
+    group = get_object_or_404(WorkoutGroup, id=group_id)
+    if request.method == 'POST':
+        form = ChallengeForm(request.POST)
+        if form.is_valid():
+            print("SUCESS")
+            challenge = form.save(commit=False)
+            challenge.group = group
+            challenge.created_by = request.user
+            challenge.save()
+            return redirect('friends:groupDetail', group_id=group.id)
+    else:
+        form = ChallengeForm()
+    return render(request, 'friends/create_challenge.html', {'form': form, 'group': group,})

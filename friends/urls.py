@@ -12,5 +12,4 @@ urlpatterns = [
     path('groups/respond_invite/<int:invite_id>/', views.respond_group_invite, name='respondGroupInvite'),
     path('groups/<int:group_id>/leave', views.leave_group, name='leaveGroup'),
     path('groups/<int:group_id>/', views.group_detail, name='groupDetail'),
-    path('groups/<int:group_id>/challenge', views.create_challenge, name='groupChallenge'),
 ]

@@ -42,6 +42,7 @@ def get_workouts(access_token):
 
 def save_workouts(workouts, user):
     for activity in workouts:
+        print(f"SAVING: {activity}")  # See what's inside activity
         strava_id = activity['id']
         defaults = {
             'name': activity['name'],

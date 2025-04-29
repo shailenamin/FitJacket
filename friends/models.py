@@ -39,33 +39,3 @@ class GroupInvite(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_group_invites')
     sent_at = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
-
-class Challenge(models.Model):
-    WORKOUT_TYPES = [
-        ('Strength', 'Strength'),
-        ('Cardio',   'Cardio'),
-        ('Yoga',     'Yoga'),
-    ]
-
-    name          = models.CharField(max_length=255)
-    group = models.ForeignKey(WorkoutGroup, on_delete=models.CASCADE)
-    workout_type  = models.CharField(max_length=20, choices=WORKOUT_TYPES)
-    description   = models.TextField(blank=True)
-    challenge_end_date    = models.DateField(null=True, blank=True)
-    created_by    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_challenges')
-    created_at    = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
-class ChallangeParticipation(models.Model):
-    user      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='challengeParticipators')
-    challenge     = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name='challenges')
-    joined_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'challenge')
-        ordering        = ['-joined_at']
-
-    def __str__(self):
-        return f"{self.user.username} → {self.event.name}"

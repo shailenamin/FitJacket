@@ -53,6 +53,7 @@
             {% if user.is_authenticated %}
               <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'Dashboard' %}" aria-current="{% if request.path == '/dashboard/' %}page{% endif %}">Dashboard</a>
               <a class="nav-link" href="{% url 'friends:userList' %}">Friends/Workout Groups</a>
+                <a class="nav-link" href="{% url 'workout_logs' %}">Workout Logs</a>
               <a class="nav-link" href="{% url 'strava.import' %}">Strava Integration</a>
               {% if is_admin %}
                 <a class="nav-link" href="{% url 'administratorPanel.emailUsers' %}">Email Users</a>

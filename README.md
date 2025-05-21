@@ -2,7 +2,7 @@
 
 FitJacket is a fitness-focused web application that allows users to track workouts, challenge friends, and stay motivated on their fitness journey. Built as a group project with a full-stack architecture.
 
-🛠️ **Tech Stack:** Django · React Native (Expo) · PostgreSQL · TailwindCSS · Bootstrap · OpenAI API · Strava API
+**Tech Stack:** Django · React Native (Expo) · PostgreSQL · TailwindCSS · Bootstrap · OpenAI API · Strava API
 
 ## Features
 - AI Fitness Coach with GPT-4 integration  
